@@ -1,0 +1,36 @@
+.login-btn{
+     -fx-background-color: linear-gradient(to bottom right, #aec959, #ccdf92);
+     -fx-background-radius: 5px;
+     -fx-cursor: hand;
+     -fx-font-size: 18px;
+     -fx-font-family:"Montserrat Semibold";
+     -fx-font-weight: "bold";
+ }
+ .login-btn:hover{
+     -fx-background-color: linear-gradient(to bottom right, #0fb565, #399a8f);
+ }
+
+ .textfield{
+     -fx-background-color: #fff;
+     -fx-border-color: #000;
+     -fx-border-width: .5px;
+     -fx-border-radius: 10;
+ }
+ .textfield:focused{
+     -fx-background-color: #fff;
+     -fx-border-color: #000;
+     -fx-border-width: 1px;
+     -fx-border-radius: 10;
+ }
+
+ .create-btn{
+     -fx-background-color: transparent;
+     -fx-cursor: hand;
+     -fx-text-fill: #fff;
+     -fx-border-color: #fff;
+     -fx-border-width: 1px;
+ }
+ .create-btn:hover{
+     -fx-background-color: #fff;
+     -fx-text-fill: #000;
+ }
