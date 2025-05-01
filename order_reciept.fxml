@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="your.package.OrderReceiptController">
+    <children>
+        <VBox layoutX="14.0" layoutY="14.0" prefHeight="372.0" prefWidth="572.0" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="14.0">
+            <children>
+                <Label text="Order Receipt">
+                    <font>
+                        <Font size="18.0" />
+                    </font>
+                    <padding>
+                        <Insets bottom="10.0" />
+                    </padding>
+                </Label>
+                <Label fx:id="orderIdLabel" text="Order ID: " />
+                <Label fx:id="dateLabel" text="Date: " />
+                <Label fx:id="customerLabel" text="Customer: " />
+                <Label text="--- Items ---">
+                    <padding>
+                        <Insets top="10.0" bottom="5.0" />
+                    </padding>
+                    <font>
+                        <Font size="14.0" />
+                    </font>
+                </Label>
+                <VBox fx:id="itemsVBox" prefHeight="200.0" prefWidth="552.0" VBox.vgrow="ALWAYS" />
+                <Label fx:id="totalAmountLabel" text="Total Amount: Php 0.00">
+                    <font>
+                        <Font size="14.0" />
+                    </font>
+                    <padding>
+                        <Insets top="10.0" bottom="5.0" />
+                    </padding>
+                </Label>
+                <Label fx:id="paymentMethodLabel" text="Payment Method: " />
+                <Label text="Thank you for your order!">
+                    <padding>
+                        <Insets top="15.0" />
+                    </padding>
+                    <font>
+                        <Font size="14.0" />
+                    </font>
+                </Label>
+            </children>
+            <padding>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+            </padding>
+        </VBox>
+    </children>
+</AnchorPane>
