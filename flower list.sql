@@ -15,7 +15,7 @@ INSERT INTO Flower (name, description, price, season, stock, image) VALUES
 ('Ginger Lily', 'Vibrant flower that blooms with moisture.', 2.10, 'Wet Season', 50, 'images/gingerlily.jpg'),
 ('Bird of Paradise', 'Striking tropical flower shaped like a bird in flight, perfect for exotic arrangements.', 3.75, 'Wet Season', 35, 'images/birdofparadise.jpg');
 
--- All-year flowers (available regardless of season due to local farming or imports)
+-- All-year flowers 
 ('Rose', 'Available year-round thanks to Baguio & Tagaytay growers.', 2.50, 'All Year', 100, 'images/rose.jpg'),
 ('Carnation', 'Commonly imported or greenhouse-grown locally.', 1.50, 'All Year', 60, 'images/carnation.jpg'),
 ('Chrysanthemum', 'Grown in cooler areas, good for most seasons.', 2.30, 'All Year', 55, 'images/chrysanthemum.jpg'),
