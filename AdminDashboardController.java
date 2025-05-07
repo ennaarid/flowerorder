@@ -1,161 +1,76 @@
-package com.flowerorder;
+package com.example.flowermanagementsystem;
 
 import javafx.fxml.FXML;
-import javafx.scene.chart.AreaChart;
-import javafx.scene.chart.BarChart;
-import javafx.scene.chart.XYChart;
-import javafx.scene.control.Label;
+import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.LocalDate;
+import javafx.event.ActionEvent;
 
+/**
+ * Controller for the admin dashboard view.
+ */
 public class AdminDashboardController {
+
+    @FXML
+    private AnchorPane main_form;
+
+    @FXML
+    private Button menu_btn;
+
+    @FXML
+    private Button bouquets_btn;
+
+    @FXML
+    private Button dashboard_btn;
+
+    @FXML
+    private Button inventory_btn;
+
+    @FXML
+    private Button manageorders_btn;
+
+    @FXML
+    private Button logout_btn;
+
     @FXML
     private AnchorPane dashboard_form;
-    
-    @FXML
-    private Label daily_income;
-    
-    @FXML
-    private Label total_income;
-    
-    @FXML
-    private Label total_customers;
-    
-    @FXML
-    private Label total_products;
-    
-    @FXML
-    private BarChart<String, Number> revenue_chart;
-    
-    @FXML
-    private AreaChart<String, Number> customers_chart;
-    
-    private Connection connect;
-    private PreparedStatement prepare;
-    private ResultSet result;
-    
+
+    /**
+     * Initializes the controller.
+     */
     public void initialize() {
-        displayDailyIncome();
-        displayTotalIncome();
-        displayTotalCustomers();
-        displayTotalProducts();
-        updateRevenueChart();
-        updateCustomersChart();
+        // Initialization code here
     }
-    
-    public void displayDailyIncome() {
-        String sql = "SELECT SUM(total) FROM orders WHERE DATE(order_date) = CURDATE()";
-        connect = Database.connectDB();
-        
-        try {
-            prepare = connect.prepareStatement(sql);
-            result = prepare.executeQuery();
-            
-            if (result.next()) {
-                double amount = result.getDouble("SUM(total)");
-                daily_income.setText(String.format("₱ %.2f", amount));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+
+    /**
+     * Handles switching between different forms/views in the dashboard.
+     * 
+     * @param event The action event triggered by the button click
+     */
+    @FXML
+    public void switchForm(ActionEvent event) {
+        if (event.getSource() == dashboard_btn) {
+            dashboard_form.setVisible(true);
+            // Hide other forms if they exist
+        } else if (event.getSource() == inventory_btn) {
+            dashboard_form.setVisible(false);
+            // Show inventory form if it exists
+        } else if (event.getSource() == manageorders_btn) {
+            dashboard_form.setVisible(false);
+            // Show orders form if it exists
+        } else if (event.getSource() == menu_btn) {
+            dashboard_form.setVisible(false);
+            // Show menu form if it exists
+        } else if (event.getSource() == bouquets_btn) {
+            dashboard_form.setVisible(false);
+            // Show bouquets form if it exists
         }
     }
-    
-    public void displayTotalIncome() {
-        String sql = "SELECT SUM(total) FROM orders";
-        connect = Database.connectDB();
-        
-        try {
-            prepare = connect.prepareStatement(sql);
-            result = prepare.executeQuery();
-            
-            if (result.next()) {
-                double amount = result.getDouble("SUM(total)");
-                total_income.setText(String.format("₱ %.2f", amount));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+
+    /**
+     * Handles the logout button click.
+     */
+    @FXML
+    public void handleLogout() {
+        // Logout logic here
     }
-    
-    public void displayTotalCustomers() {
-        String sql = "SELECT COUNT(*) FROM customers";
-        connect = Database.connectDB();
-        
-        try {
-            prepare = connect.prepareStatement(sql);
-            result = prepare.executeQuery();
-            
-            if (result.next()) {
-                int count = result.getInt("COUNT(*)");
-                total_customers.setText(String.valueOf(count));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-    
-    public void displayTotalProducts() {
-        String sql = "SELECT COUNT(*) FROM inventory";
-        connect = Database.connectDB();
-        
-        try {
-            prepare = connect.prepareStatement(sql);
-            result = prepare.executeQuery();
-            
-            if (result.next()) {
-                int count = result.getInt("COUNT(*)");
-                total_products.setText(String.valueOf(count));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-    
-    public void updateRevenueChart() {
-        revenue_chart.getData().clear();
-        
-        String sql = "SELECT DATE(order_date) as date, SUM(total) as total FROM orders GROUP BY DATE(order_date) ORDER BY date DESC LIMIT 7";
-        connect = Database.connectDB();
-        
-        XYChart.Series<String, Number> series = new XYChart.Series<>();
-        
-        try {
-            prepare = connect.prepareStatement(sql);
-            result = prepare.executeQuery();
-            
-            while (result.next()) {
-                series.getData().add(new XYChart.Data<>(result.getString("date"), result.getDouble("total")));
-            }
-            
-            revenue_chart.getData().add(series);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-    
-    public void updateCustomersChart() {
-        customers_chart.getData().clear();
-        
-        String sql = "SELECT DATE(order_date) as date, COUNT(DISTINCT customer_id) as count FROM orders GROUP BY DATE(order_date) ORDER BY date DESC LIMIT 7";
-        connect = Database.connectDB();
-        
-        XYChart.Series<String, Number> series = new XYChart.Series<>();
-        
-        try {
-            prepare = connect.prepareStatement(sql);
-            result = prepare.executeQuery();
-            
-            while (result.next()) {
-                series.getData().add(new XYChart.Data<>(result.getString("date"), result.getInt("count")));
-            }
-            
-            customers_chart.getData().add(series);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-} 
+}

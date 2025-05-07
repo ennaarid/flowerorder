@@ -4,11 +4,9 @@
      -fx-cursor: hand;
      -fx-font-size: 18px;
      -fx-font-family:"Montserrat Semibold";
-
  }
  .login-btn:hover{
      -fx-background-color: linear-gradient(to bottom right, #ffffff, #ffffff);
-
  }
 
  .textfield{
@@ -26,32 +24,34 @@
      -fx-background-radius: 10;
  }
 
-  .passwordfield{
+ .create-btn{
+     -fx-background-color: transparent;
+     -fx-cursor: hand;
+     -fx-text-fill: #fff;
+     -fx-border-color: #fff;
+     -fx-border-width: 1px;
+ }
+ .create-btn:hover{
+     -fx-background-color: #fff;
+     -fx-text-fill: #000;
+ }
+
+ .passwordfield{
       -fx-background-color: #fff;
       -fx-border-color: #000;
       -fx-border-width: .5px;
       -fx-border-radius: 10;
-       -fx-radius: 10;
+      -fx-background-radius: 10;
   }
   .passwordfield:focused{
       -fx-background-color: #fff;
       -fx-border-color: #000;
       -fx-border-width: 1px;
       -fx-border-radius: 10;
-      -fx-radius: 10;
+      -fx-background-radius: 10;
   }
 
- .signupbtn {
-    -fx-background-color: transparent;
-    -fx-text-fill: #de3163;
-    -fx-font-size: 9px;
-    -fx-font-family:"Montserrat Semibold";
- }
-
- .signupbtn:hover{
-      -fx-text-fill: #000000;
-  }
-
-.signupbtn:active{
-      -fx-text-fill: green;
-  }
+  .loginbtn {
+      -fx-background-color: transparent;
+      -fx-text-fill: #de3163;
+   }
