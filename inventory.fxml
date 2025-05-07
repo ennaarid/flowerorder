@@ -15,8 +15,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.Font?>
 
-
-<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.final_flowerorderingsystem.mainFormController">
+<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.final_flowerorderingsystem.inventoryController">
    <children>
       <AnchorPane fx:id="main_form" prefHeight="200.0" prefWidth="200.0">
          <children>
@@ -35,7 +34,7 @@
                                     </Label>
                                  </children>
                               </AnchorPane>
-                              <Button fx:id="menu_btn" layoutX="17.0" layoutY="102.0" mnemonicParsing="false" onAction="#switchForm" prefHeight="21.0" prefWidth="222.0" styleClass="nav-btn" stylesheets="@mainFormDesign.css" text="In Season" AnchorPane.leftAnchor="17.0" AnchorPane.rightAnchor="17.0">
+                              <Button fx:id="menu_btn" layoutX="17.0" layoutY="102.0" mnemonicParsing="false" onAction="#switchForm" prefHeight="21.0" prefWidth="222.0" styleClass="nav-btn" stylesheets="@mainFormDesign.css" text="Catalog" AnchorPane.leftAnchor="17.0" AnchorPane.rightAnchor="17.0">
                                  <font>
                                     <Font name="Montserrat Regular" size="18.0" />
                                  </font>
@@ -50,14 +49,19 @@
                                     <Font size="16.0" />
                                  </font>
                               </Button>
-                              <Button fx:id="manageorders_btn" layoutX="17.0" layoutY="363.0" mnemonicParsing="false" prefHeight="41.0" prefWidth="222.0" styleClass="nav-btn" stylesheets="@mainFormDesign.css" text="Manage Orders" AnchorPane.leftAnchor="17.0" AnchorPane.rightAnchor="17.0">
+                              <Button fx:id="manageorders_btn" layoutX="17.0" layoutY="363.0" mnemonicParsing="false" onAction="#switchForm" prefHeight="41.0" prefWidth="222.0" styleClass="nav-btn" stylesheets="@mainFormDesign.css" text="Manage Orders" AnchorPane.leftAnchor="17.0" AnchorPane.rightAnchor="17.0">
                                  <font>
                                     <Font size="16.0" />
                                  </font>
                               </Button>
-                              <Button layoutX="17.0" layoutY="146.0" mnemonicParsing="false" prefHeight="21.0" prefWidth="222.0" styleClass="nav-btn" stylesheets="@mainFormDesign.css" text="Bouquets" AnchorPane.leftAnchor="17.0" AnchorPane.rightAnchor="17.0">
+                              <Button fx:id="profile_btn" layoutX="17.0" layoutY="533.0" mnemonicParsing="false" onAction="#switchForm" prefHeight="41.0" prefWidth="222.0" styleClass="nav-btn" stylesheets="@mainFormDesign.css" text="Profile" AnchorPane.leftAnchor="17.0" AnchorPane.rightAnchor="17.0">
                                  <font>
-                                    <Font name="Montserrat Regular" size="18.0" />
+                                    <Font size="16.0" />
+                                 </font>
+                              </Button>
+                              <Button fx:id="settings_btn" layoutX="17.0" layoutY="580.0" mnemonicParsing="false" onAction="#switchForm" prefHeight="41.0" prefWidth="222.0" styleClass="nav-btn" stylesheets="@mainFormDesign.css" text="Settings" AnchorPane.leftAnchor="17.0" AnchorPane.rightAnchor="17.0">
+                                 <font>
+                                    <Font size="16.0" />
                                  </font>
                               </Button>
                               <Button fx:id="logout_btn" layoutX="22.0" layoutY="546.0" mnemonicParsing="false" stylesheets="@mainFormDesign.css" AnchorPane.bottomAnchor="19.0" AnchorPane.leftAnchor="22.0" AnchorPane.rightAnchor="200.0">
@@ -84,14 +88,14 @@
                      <children>
                         <AnchorPane fx:id="inventory_form" prefHeight="600.0" prefWidth="844.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                            <children>
-                              <AnchorPane prefHeight="297.0" prefWidth="792.0" stylesheets="@mainFormDesign.css" AnchorPane.bottomAnchor="280.0" AnchorPane.leftAnchor="24.0" AnchorPane.rightAnchor="28.0" AnchorPane.topAnchor="23.0">
+                              <AnchorPane layoutY="86.0" prefHeight="361.0" prefWidth="972.0" stylesheets="@mainFormDesign.css" AnchorPane.bottomAnchor="273.0" AnchorPane.leftAnchor="24.0" AnchorPane.rightAnchor="28.0" AnchorPane.topAnchor="86.0">
                                  <styleClass>
                                     <String fx:value="white-bg" />
                                     <String fx:value="radius" />
                                     <String fx:value="shadow" />
                                  </styleClass>
                                  <children>
-                                    <TableView fx:id="inventory_tableView" layoutX="159.0" layoutY="40.0" prefHeight="297.0" prefWidth="792.0" stylesheets="@mainFormDesign.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                    <TableView fx:id="inventory_tableView" layoutX="159.0" layoutY="40.0" prefHeight="297.0" prefWidth="972.0" stylesheets="@mainFormDesign.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <columns>
                                           <TableColumn fx:id="inventory_col_productID" prefWidth="86.0" text="Product ID" />
                                           <TableColumn fx:id="inventory_col_productName" prefWidth="119.0" text="Product Name" />
@@ -108,7 +112,7 @@
                                     </TableView>
                                  </children>
                               </AnchorPane>
-                              <AnchorPane prefHeight="244.0" prefWidth="792.0" stylesheets="@mainFormDesign.css" AnchorPane.bottomAnchor="17.0" AnchorPane.leftAnchor="24.0" AnchorPane.rightAnchor="28.0">
+                              <AnchorPane prefHeight="195.0" prefWidth="972.0" stylesheets="@mainFormDesign.css" AnchorPane.bottomAnchor="17.0" AnchorPane.leftAnchor="24.0" AnchorPane.rightAnchor="28.0">
                                  <styleClass>
                                     <String fx:value="white-bg" />
                                     <String fx:value="radius" />
@@ -172,29 +176,35 @@
                                           <Font name="Montserrat Bold" size="12.0" />
                                        </font>
                                     </Button>
-                                    <Button fx:id="inventory_addBtn" layoutX="619.0" layoutY="20.0" mnemonicParsing="false" onAction="#inventoryAddBtn" prefHeight="43.0" prefWidth="133.0" styleClass="btn" stylesheets="@mainFormDesign.css" text="Add" AnchorPane.rightAnchor="40.0">
+                                    <Button fx:id="inventory_addBtn" layoutX="803.0" layoutY="21.0" mnemonicParsing="false" onAction="#inventoryAddBtn" prefHeight="43.0" prefWidth="133.0" styleClass="btn" stylesheets="@mainFormDesign.css" text="Add" AnchorPane.rightAnchor="36.0">
                                        <font>
                                           <Font name="Montserrat Bold" size="12.0" />
                                        </font>
                                     </Button>
-                                    <Button fx:id="inventory_updateBtn" layoutX="619.0" layoutY="74.0" mnemonicParsing="false" onAction="#inventoryUpdateBtn" prefHeight="43.0" prefWidth="133.0" styleClass="btn" stylesheets="@mainFormDesign.css" text="Update" AnchorPane.rightAnchor="40.0">
+                                    <Button fx:id="inventory_updateBtn" layoutX="803.0" layoutY="74.0" mnemonicParsing="false" onAction="#inventoryUpdateBtn" prefHeight="43.0" prefWidth="133.0" styleClass="btn" stylesheets="@mainFormDesign.css" text="Update" AnchorPane.rightAnchor="36.0">
                                        <font>
                                           <Font name="Montserrat Bold" size="12.0" />
                                        </font>
                                     </Button>
-                                    <Button fx:id="inventory_clearBtn" layoutX="619.0" layoutY="129.0" mnemonicParsing="false" onAction="#inventoryClearBtn" prefHeight="43.0" prefWidth="133.0" styleClass="btn" stylesheets="@mainFormDesign.css" text="Clear" AnchorPane.rightAnchor="40.0">
+                                    <Button fx:id="inventory_clearBtn" layoutX="803.0" layoutY="129.0" mnemonicParsing="false" onAction="#inventoryClearBtn" prefHeight="43.0" prefWidth="133.0" styleClass="btn" stylesheets="@mainFormDesign.css" text="Clear" AnchorPane.rightAnchor="36.0">
                                        <font>
                                           <Font name="Montserrat Bold" size="12.0" />
                                        </font>
                                     </Button>
-                                    <Button fx:id="inventory_deleteBtn" layoutX="619.0" layoutY="184.0" mnemonicParsing="false" onAction="#inventoryDeleteBtn" prefHeight="43.0" prefWidth="133.0" styleClass="btn" stylesheets="@mainFormDesign.css" text="Delete" AnchorPane.rightAnchor="40.0">
+                                    <Button fx:id="inventory_deleteBtn" layoutX="803.0" layoutY="184.0" mnemonicParsing="false" onAction="#inventoryDeleteBtn" prefHeight="43.0" prefWidth="133.0" styleClass="btn" stylesheets="@mainFormDesign.css" text="Delete" AnchorPane.rightAnchor="36.0">
                                        <font>
                                           <Font name="Montserrat Bold" size="12.0" />
                                        </font>
                                     </Button>
                                  </children>
                               </AnchorPane>
-                              <Separator prefHeight="0.0" prefWidth="779.0" AnchorPane.bottomAnchor="267.0" AnchorPane.leftAnchor="33.0" AnchorPane.rightAnchor="32.0" />
+                              <Separator layoutX="24.0" layoutY="75.0" prefHeight="1.0" prefWidth="973.0" AnchorPane.leftAnchor="24.0" AnchorPane.rightAnchor="27.0" AnchorPane.topAnchor="75.0" />
+                              <Label layoutX="39.0" layoutY="33.0" text="Inventory" textFill="#89ac46" AnchorPane.leftAnchor="39.0" AnchorPane.topAnchor="33.0">
+                                 <font>
+                                    <Font name="Montserrat Bold" size="29.0" />
+                                 </font>
+                              </Label>
+                              <TextField fx:id="inventory_search" layoutX="750.0" layoutY="30.0" prefHeight="35.0" prefWidth="230.0" promptText="Search" styleClass="radius" stylesheets="@mainFormDesign.css" AnchorPane.rightAnchor="44.0" AnchorPane.topAnchor="30.0" />
                            </children>
                         </AnchorPane>
                      </children>
