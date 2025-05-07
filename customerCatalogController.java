@@ -25,6 +25,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.io.IOException;
 
 public class customerCatalogController implements Initializable {
 
@@ -89,82 +90,51 @@ public class customerCatalogController implements Initializable {
     }
 
     private void loadCatalogData() {
-        String sql = "SELECT * FROM product";
-        connect = database.connectDB();
-
         try {
-            prepare = connect.prepareStatement(sql);
-            result = prepare.executeQuery();
+            Connection conn = getConnection();
+            String query = "SELECT * FROM product";
+            PreparedStatement pst = conn.prepareStatement(query);
+            ResultSet rs = pst.executeQuery();
 
             int column = 0;
             int row = 0;
-            int maxColumns = 3; // Number of items per row
+            int maxColumns = 3;
 
-            while (result.next()) {
-                VBox itemBox = createCatalogItem(
-                    result.getString("product_id"),
-                    result.getString("product_name"),
-                    result.getString("season"),
-                    result.getDouble("price"),
-                    result.getString("image")
-                );
+            while (rs.next()) {
+                String product_id = rs.getString("product_id");
+                String product_name = rs.getString("product_name");
+                String description = rs.getString("description");
+                String season = rs.getString("season");
+                double price = rs.getDouble("price");
+                String image = rs.getString("image");
 
-                catalog_grid.add(itemBox, column, row);
+                // Load the item card FXML
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/final_flowerorderingsystem/itemCard.fxml"));
+                VBox itemCard = loader.load();
+                ItemCardController controller = loader.getController();
+
+                // Set the data
+                controller.setData(product_id, product_name, description, season, price, image, -1, "Add to Cart");
+
+                // Set up the action button
+                controller.getActionButton().setOnAction(e -> addToCart(product_id, product_name, price));
+
+                // Add to grid
+                catalog_grid.add(itemCard, column, row);
                 column++;
-
-                if (column == maxColumns) {
+                if (column >= maxColumns) {
                     column = 0;
                     row++;
                 }
             }
-        } catch (SQLException e) {
+
+            rs.close();
+            pst.close();
+            conn.close();
+        } catch (SQLException | IOException e) {
             e.printStackTrace();
-        } finally {
-            closeResources();
+            showAlert("Error", "Failed to load catalog data", Alert.AlertType.ERROR);
         }
-    }
-
-    private VBox createCatalogItem(String id, String name, String season, double price, String imagePath) {
-        VBox itemBox = new VBox(10);
-        itemBox.setAlignment(Pos.CENTER);
-        itemBox.setPadding(new Insets(10));
-        itemBox.setStyle("-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 10);");
-
-        // Image
-        ImageView imageView = new ImageView();
-        try {
-            Image image = new Image(getClass().getResourceAsStream("/com/example/final_flowerorderingsystem/images/" + imagePath));
-            imageView.setImage(image);
-        } catch (Exception e) {
-            // Load default image if the specified image is not found
-            Image defaultImage = new Image(getClass().getResourceAsStream("/com/example/final_flowerorderingsystem/images/default_flower.png"));
-            imageView.setImage(defaultImage);
-        }
-        imageView.setFitHeight(150);
-        imageView.setFitWidth(150);
-        imageView.setPreserveRatio(true);
-
-        // Name
-        Label nameLabel = new Label(name);
-        nameLabel.setFont(Font.font("Montserrat Bold", 16));
-        nameLabel.setTextAlignment(TextAlignment.CENTER);
-
-        // Season
-        Label seasonLabel = new Label("Season: " + season);
-        seasonLabel.setFont(Font.font("Montserrat Regular", 12));
-
-        // Price
-        Label priceLabel = new Label(String.format("₱%.2f", price));
-        priceLabel.setFont(Font.font("Montserrat Bold", 14));
-        priceLabel.setStyle("-fx-text-fill: #89ac46;");
-
-        // Add to Cart button
-        Button addToCartBtn = new Button("Add to Cart");
-        addToCartBtn.setStyle("-fx-background-color: #89ac46; -fx-text-fill: white; -fx-font-family: 'Montserrat Bold'; -fx-font-size: 12;");
-        addToCartBtn.setOnAction(e -> addToCart(id, name, price));
-
-        itemBox.getChildren().addAll(imageView, nameLabel, seasonLabel, priceLabel, addToCartBtn);
-        return itemBox;
     }
 
     @FXML
@@ -207,15 +177,24 @@ public class customerCatalogController implements Initializable {
             int maxColumns = 3;
 
             while (result.next()) {
-                VBox itemBox = createCatalogItem(
+                ItemCard itemCard = new ItemCard(
                     result.getString("product_id"),
                     result.getString("product_name"),
                     result.getString("season"),
                     result.getDouble("price"),
-                    result.getString("image")
+                    result.getString("image"),
+                    -1, // Stock not shown in catalog
+                    "Add to Cart"
                 );
 
-                catalog_grid.add(itemBox, column, row);
+                // Set up the action button
+                itemCard.getActionButton().setOnAction(e -> addToCart(
+                    itemCard.getProductId(),
+                    itemCard.getProductName(),
+                    itemCard.getPrice()
+                ));
+
+                catalog_grid.add(itemCard, column, row);
                 column++;
 
                 if (column == maxColumns) {
@@ -341,5 +320,9 @@ public class customerCatalogController implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();
+    }
+
+    private Connection getConnection() throws SQLException {
+        return database.connectDB();
     }
 } 
