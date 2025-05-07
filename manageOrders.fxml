@@ -47,12 +47,22 @@
                                     <Font size="16.0" />
                                  </font>
                               </Button>
-                              <Button fx:id="manageorders_btn" layoutX="17.0" layoutY="363.0" mnemonicParsing="false" prefHeight="41.0" prefWidth="222.0" styleClass="nav-btn" stylesheets="@mainFormDesign.css" text="Manage Orders" AnchorPane.leftAnchor="17.0" AnchorPane.rightAnchor="17.0">
+                              <Button fx:id="manageorders_btn" layoutX="17.0" layoutY="363.0" mnemonicParsing="false" onAction="#switchForm" prefHeight="41.0" prefWidth="222.0" styleClass="nav-btn" stylesheets="@mainFormDesign.css" text="Manage Orders" AnchorPane.leftAnchor="17.0" AnchorPane.rightAnchor="17.0">
                                  <font>
                                     <Font size="16.0" />
                                  </font>
                               </Button>
-                              <Button fx:id="logout_btn" layoutX="22.0" layoutY="546.0" mnemonicParsing="false" stylesheets="@mainFormDesign.css" AnchorPane.bottomAnchor="19.0" AnchorPane.leftAnchor="22.0" AnchorPane.rightAnchor="200.0">
+                              <Button fx:id="profile_btn" layoutX="17.0" layoutY="533.0" mnemonicParsing="false" onAction="#switchForm" prefHeight="41.0" prefWidth="222.0" styleClass="nav-btn" stylesheets="@mainFormDesign.css" text="Profile" AnchorPane.leftAnchor="17.0" AnchorPane.rightAnchor="17.0">
+                                 <font>
+                                    <Font size="16.0" />
+                                 </font>
+                              </Button>
+                              <Button fx:id="settings_btn" layoutX="17.0" layoutY="580.0" mnemonicParsing="false" onAction="#switchForm" prefHeight="41.0" prefWidth="222.0" styleClass="nav-btn" stylesheets="@mainFormDesign.css" text="Settings" AnchorPane.leftAnchor="17.0" AnchorPane.rightAnchor="17.0">
+                                 <font>
+                                    <Font size="16.0" />
+                                 </font>
+                              </Button>
+                              <Button fx:id="logout_btn" layoutX="22.0" layoutY="703.0" mnemonicParsing="false" stylesheets="@mainFormDesign.css" AnchorPane.bottomAnchor="19.0" AnchorPane.leftAnchor="22.0" AnchorPane.rightAnchor="200.0">
                                  <graphic>
                                     <FontAwesomeIconView fill="WHITE" glyphName="SIGN_OUT" size="25" text="" />
                                  </graphic>
@@ -61,7 +71,7 @@
                                     <String fx:value="shadow" />
                                  </styleClass>
                               </Button>
-                              <Label layoutX="66.0" layoutY="557.0" text="Sign Out" AnchorPane.bottomAnchor="28.0" AnchorPane.leftAnchor="66.0" AnchorPane.rightAnchor="135.0">
+                              <Label layoutX="66.0" layoutY="714.0" text="Sign Out" AnchorPane.bottomAnchor="28.0" AnchorPane.leftAnchor="66.0" AnchorPane.rightAnchor="135.0">
                                  <font>
                                     <Font name="Montserrat Bold" size="12.0" />
                                  </font>
