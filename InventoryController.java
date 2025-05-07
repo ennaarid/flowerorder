@@ -1,357 +1,604 @@
-package com.flowerorder;
+package com.example.final_flowerorderingsystem;
 
-import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.stage.FileChooser;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import java.io.File;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.LocalDate;
-import java.util.Optional;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
-public class InventoryController {
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.ResourceBundle;
+
+public class inventoryController implements Initializable {
+
+    @FXML
+    private AnchorPane main_form;
+
     @FXML
     private AnchorPane inventory_form;
-    
+
     @FXML
-    private TableView<Inventory> inventory_tableView;
-    
+    private Button menu_btn;
+
     @FXML
-    private TableColumn<Inventory, String> inventory_col_productID;
-    
+    private Button dashboard_btn;
+
     @FXML
-    private TableColumn<Inventory, String> inventory_col_productName;
-    
+    private Button inventory_btn;
+
     @FXML
-    private TableColumn<Inventory, String> inventory_col_season;
-    
+    private Button manageorders_btn;
+
     @FXML
-    private TableColumn<Inventory, String> inventory_col_price;
-    
+    private Button profile_btn;
+
     @FXML
-    private TableColumn<Inventory, String> inventory_col_status;
-    
+    private Button settings_btn;
+
     @FXML
-    private TableColumn<Inventory, String> inventory_col_stock;
-    
+    private Button logout_btn;
+
     @FXML
-    private TableColumn<Inventory, String> inventory_col_date;
-    
+    private TableView<InventoryData> inventory_tableView;
+
     @FXML
-    private TableColumn<Inventory, String> inventory_col_description;
-    
+    private TableColumn<InventoryData, String> inventory_col_productID;
+
     @FXML
-    private TextField inventory_productID;
-    
+    private TableColumn<InventoryData, String> inventory_col_productName;
+
     @FXML
-    private TextField inventory_productName;
-    
+    private TableColumn<InventoryData, String> inventory_col_season;
+
     @FXML
-    private ComboBox<String> inventory_season;
-    
+    private TableColumn<InventoryData, Double> inventory_col_price;
+
     @FXML
-    private TextField inventory_price;
-    
+    private TableColumn<InventoryData, String> inventory_col_status;
+
     @FXML
-    private ComboBox<String> inventory_status;
-    
+    private TableColumn<InventoryData, String> inventory_col_date;
+
     @FXML
-    private TextField inventory_stock;
-    
-    @FXML
-    private TextField inventory_description;
-    
+    private TableColumn<InventoryData, String> inventory_col_description;
+
     @FXML
     private ImageView inventory_imageView;
-    
+
     @FXML
     private Button inventory_importBtn;
-    
+
     @FXML
     private Button inventory_addBtn;
-    
+
     @FXML
     private Button inventory_updateBtn;
-    
+
     @FXML
     private Button inventory_clearBtn;
-    
+
     @FXML
     private Button inventory_deleteBtn;
-    
+
+    @FXML
+    private TextField inventory_productID;
+
+    @FXML
+    private TextField inventory_productName;
+
+    @FXML
+    private ComboBox<String> inventory_season;
+
+    @FXML
+    private TextField inventory_price;
+
+    @FXML
+    private ComboBox<String> inventory_status;
+
+    @FXML
+    private TextField inventory_stock;
+
+    @FXML
+    private TextField inventory_description;
+
+    @FXML
+    private TextField inventory_search;
+
+    @FXML
+    private TextField inventory_image;
+
+    // Profile Form Components
+    @FXML
+    private AnchorPane profile_form;
+
+    @FXML
+    private ImageView profile_image;
+
+    @FXML
+    private TextField profile_username;
+
+    @FXML
+    private TextField profile_email;
+
+    @FXML
+    private TextField profile_phone;
+
+    @FXML
+    private Button profile_importBtn;
+
+    @FXML
+    private Button profile_saveBtn;
+
+    // Settings Form Components
+    @FXML
+    private AnchorPane settings_form;
+
+    @FXML
+    private TextField settings_currentPassword;
+
+    @FXML
+    private TextField settings_newPassword;
+
+    @FXML
+    private TextField settings_confirmPassword;
+
+    @FXML
+    private CheckBox settings_emailNotifications;
+
+    @FXML
+    private CheckBox settings_orderUpdates;
+
+    @FXML
+    private CheckBox settings_promotions;
+
+    @FXML
+    private Button settings_saveBtn;
+
+    @FXML
+    private GridPane inventory_grid;
+
     private Connection connect;
     private PreparedStatement prepare;
+    private Statement statement;
     private ResultSet result;
-    
+    private Alert alert;
     private Image image;
-    private String imagePath;
-    
-    public void initialize() {
-        inventorySeasonList();
-        inventoryStatusList();
-        inventoryShowData();
-    }
-    
-    public void inventorySeasonList() {
-        ObservableList<String> list = FXCollections.observableArrayList(
-            "Spring", "Summer", "Fall", "Winter", "All Year"
-        );
-        inventory_season.setItems(list);
-    }
-    
-    public void inventoryStatusList() {
-        ObservableList<String> list = FXCollections.observableArrayList(
+    private ObservableList<InventoryData> inventoryList;
+    private String currentImagePath;
+    private String currentProfileImagePath;
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        inventory_form.setVisible(true);
+        profile_form.setVisible(false);
+        settings_form.setVisible(false);
+        
+        inventory_season.setItems(FXCollections.observableArrayList(
+            "Wet", "Dry", "All Year Round"
+        ));
+        
+        inventory_status.setItems(FXCollections.observableArrayList(
             "Available", "Low Stock", "Out of Stock"
-        );
-        inventory_status.setItems(list);
+        ));
+
+        inventory_col_productID.setCellValueFactory(new PropertyValueFactory<>("productID"));
+        inventory_col_productName.setCellValueFactory(new PropertyValueFactory<>("productName"));
+        inventory_col_season.setCellValueFactory(new PropertyValueFactory<>("season"));
+        inventory_col_price.setCellValueFactory(new PropertyValueFactory<>("price"));
+        inventory_col_status.setCellValueFactory(new PropertyValueFactory<>("status"));
+        inventory_col_date.setCellValueFactory(new PropertyValueFactory<>("date"));
+        inventory_col_description.setCellValueFactory(new PropertyValueFactory<>("description"));
+
+        inventoryList = FXCollections.observableArrayList();
+        inventory_tableView.setItems(inventoryList);
+
+        FilteredList<InventoryData> filteredData = new FilteredList<>(inventoryList, b -> true);
+        inventory_search.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredData.setPredicate(inventory -> {
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+                String lowerCaseFilter = newValue.toLowerCase();
+                return inventory.getProductName().toLowerCase().contains(lowerCaseFilter) ||
+                       inventory.getProductID().toLowerCase().contains(lowerCaseFilter) ||
+                       inventory.getSeason().toLowerCase().contains(lowerCaseFilter);
+            });
+        });
+
+        SortedList<InventoryData> sortedData = new SortedList<>(filteredData);
+        sortedData.comparatorProperty().bind(inventory_tableView.comparatorProperty());
+        inventory_tableView.setItems(sortedData);
+
+        loadInventoryData();
+        loadProfileData();
     }
-    
-    public void inventoryImportBtn() {
-        FileChooser open = new FileChooser();
-        open.setTitle("Open Image File");
-        open.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image File", "*jpg", "*png"));
-        
-        File file = open.showOpenDialog(inventory_form.getScene().getWindow());
-        
-        if (file != null) {
-            imagePath = file.getAbsolutePath();
-            image = new Image(file.toURI().toString(), 160, 140, false, true);
+
+    @FXML
+    private void inventoryImportBtn() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select Product Image");
+        fileChooser.getExtensionFilters().add(
+            new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg")
+        );
+
+        File selectedFile = fileChooser.showOpenDialog(null);
+        if (selectedFile != null) {
+            currentImagePath = selectedFile.getAbsolutePath();
+            Image image = new Image(selectedFile.toURI().toString());
             inventory_imageView.setImage(image);
         }
     }
-    
-    public void inventoryAddBtn() {
-        String sql = "INSERT INTO inventory (product_id, product_name, season, price, status, stock, date, description, image) VALUES (?,?,?,?,?,?,?,?,?)";
-        connect = Database.connectDB();
-        
-        try {
-            Alert alert;
-            
-            if (inventory_productID.getText().isEmpty() || 
-                inventory_productName.getText().isEmpty() || 
-                inventory_season.getSelectionModel().getSelectedItem() == null || 
-                inventory_price.getText().isEmpty() || 
-                inventory_status.getSelectionModel().getSelectedItem() == null || 
-                inventory_stock.getText().isEmpty() || 
-                inventory_description.getText().isEmpty() || 
-                imagePath == null) {
-                
-                alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Error Message");
-                alert.setHeaderText(null);
-                alert.setContentText("Please fill all blank fields");
-                alert.showAndWait();
-            } else {
-                prepare = connect.prepareStatement(sql);
-                prepare.setString(1, inventory_productID.getText());
-                prepare.setString(2, inventory_productName.getText());
-                prepare.setString(3, inventory_season.getSelectionModel().getSelectedItem());
-                prepare.setDouble(4, Double.parseDouble(inventory_price.getText()));
-                prepare.setString(5, inventory_status.getSelectionModel().getSelectedItem());
-                prepare.setInt(6, Integer.parseInt(inventory_stock.getText()));
-                prepare.setDate(7, java.sql.Date.valueOf(LocalDate.now()));
-                prepare.setString(8, inventory_description.getText());
-                prepare.setString(9, imagePath);
-                
-                prepare.executeUpdate();
-                
-                alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Information Message");
-                alert.setHeaderText(null);
-                alert.setContentText("Successfully Added!");
-                alert.showAndWait();
-                
-                inventoryShowData();
-                inventoryClearBtn();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+
+    @FXML
+    private void inventoryAddBtn() {
+        if (validateInput()) {
+            InventoryData newItem = new InventoryData(
+                inventory_productID.getText(),
+                inventory_productName.getText(),
+                inventory_season.getValue(),
+                Double.parseDouble(inventory_price.getText()),
+                inventory_status.getValue(),
+                Integer.parseInt(inventory_stock.getText()),
+                java.time.LocalDate.now().toString(),
+                inventory_description.getText(),
+                currentImagePath
+            );
+            inventoryList.add(newItem);
+            clearFields();
+            showAlert("Success", "Product added successfully!", Alert.AlertType.INFORMATION);
         }
     }
-    
-    public void inventoryUpdateBtn() {
-        String sql = "UPDATE inventory SET product_name = ?, season = ?, price = ?, status = ?, stock = ?, description = ?, image = ? WHERE product_id = ?";
-        connect = Database.connectDB();
-        
-        try {
-            Alert alert;
-            
-            if (inventory_productID.getText().isEmpty() || 
-                inventory_productName.getText().isEmpty() || 
-                inventory_season.getSelectionModel().getSelectedItem() == null || 
-                inventory_price.getText().isEmpty() || 
-                inventory_status.getSelectionModel().getSelectedItem() == null || 
-                inventory_stock.getText().isEmpty() || 
-                inventory_description.getText().isEmpty() || 
-                imagePath == null) {
-                
-                alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Error Message");
-                alert.setHeaderText(null);
-                alert.setContentText("Please fill all blank fields");
-                alert.showAndWait();
-            } else {
-                alert = new Alert(Alert.AlertType.CONFIRMATION);
-                alert.setTitle("Confirmation Message");
-                alert.setHeaderText(null);
-                alert.setContentText("Are you sure you want to UPDATE Product ID: " + inventory_productID.getText() + "?");
-                
-                Optional<ButtonType> option = alert.showAndWait();
-                
-                if (option.get().equals(ButtonType.OK)) {
-                    prepare = connect.prepareStatement(sql);
-                    prepare.setString(1, inventory_productName.getText());
-                    prepare.setString(2, inventory_season.getSelectionModel().getSelectedItem());
-                    prepare.setDouble(3, Double.parseDouble(inventory_price.getText()));
-                    prepare.setString(4, inventory_status.getSelectionModel().getSelectedItem());
-                    prepare.setInt(5, Integer.parseInt(inventory_stock.getText()));
-                    prepare.setString(6, inventory_description.getText());
-                    prepare.setString(7, imagePath);
-                    prepare.setString(8, inventory_productID.getText());
-                    
-                    prepare.executeUpdate();
-                    
-                    alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setTitle("Information Message");
-                    alert.setHeaderText(null);
-                    alert.setContentText("Successfully Updated!");
-                    alert.showAndWait();
-                    
-                    inventoryShowData();
-                    inventoryClearBtn();
-                }
+
+    @FXML
+    private void inventoryUpdateBtn() {
+        InventoryData selectedItem = inventory_tableView.getSelectionModel().getSelectedItem();
+        if (selectedItem != null && validateInput()) {
+            selectedItem.setProductName(inventory_productName.getText());
+            selectedItem.setSeason(inventory_season.getValue());
+            selectedItem.setPrice(Double.parseDouble(inventory_price.getText()));
+            selectedItem.setStatus(inventory_status.getValue());
+            selectedItem.setStock(Integer.parseInt(inventory_stock.getText()));
+            selectedItem.setDescription(inventory_description.getText());
+            if (currentImagePath != null) {
+                selectedItem.setImagePath(currentImagePath);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+            inventory_tableView.refresh();
+            clearFields();
+            showAlert("Success", "Product updated successfully!", Alert.AlertType.INFORMATION);
+        } else {
+            showAlert("Error", "Please select a product to update!", Alert.AlertType.ERROR);
         }
     }
-    
-    public void inventoryDeleteBtn() {
-        String sql = "DELETE FROM inventory WHERE product_id = ?";
-        connect = Database.connectDB();
-        
-        try {
-            Alert alert;
-            
-            if (inventory_productID.getText().isEmpty()) {
-                alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Error Message");
-                alert.setHeaderText(null);
-                alert.setContentText("Please fill the product ID");
-                alert.showAndWait();
-            } else {
-                alert = new Alert(Alert.AlertType.CONFIRMATION);
-                alert.setTitle("Confirmation Message");
-                alert.setHeaderText(null);
-                alert.setContentText("Are you sure you want to DELETE Product ID: " + inventory_productID.getText() + "?");
-                
-                Optional<ButtonType> option = alert.showAndWait();
-                
-                if (option.get().equals(ButtonType.OK)) {
-                    prepare = connect.prepareStatement(sql);
-                    prepare.setString(1, inventory_productID.getText());
-                    
-                    prepare.executeUpdate();
-                    
-                    alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setTitle("Information Message");
-                    alert.setHeaderText(null);
-                    alert.setContentText("Successfully Deleted!");
-                    alert.showAndWait();
-                    
-                    inventoryShowData();
-                    inventoryClearBtn();
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+
+    @FXML
+    private void inventoryClearBtn() {
+        clearFields();
+    }
+
+    @FXML
+    private void inventoryDeleteBtn() {
+        InventoryData selectedItem = inventory_tableView.getSelectionModel().getSelectedItem();
+        if (selectedItem != null) {
+            inventoryList.remove(selectedItem);
+            clearFields();
+            showAlert("Success", "Product deleted successfully!", Alert.AlertType.INFORMATION);
+        } else {
+            showAlert("Error", "Please select a product to delete!", Alert.AlertType.ERROR);
         }
     }
-    
-    public void inventoryClearBtn() {
-        inventory_productID.setText("");
-        inventory_productName.setText("");
-        inventory_season.getSelectionModel().clearSelection();
-        inventory_price.setText("");
-        inventory_status.getSelectionModel().clearSelection();
-        inventory_stock.setText("");
-        inventory_description.setText("");
+
+    private void clearFields() {
+        inventory_productID.clear();
+        inventory_productName.clear();
+        inventory_season.setValue(null);
+        inventory_price.clear();
+        inventory_status.setValue(null);
+        inventory_stock.clear();
+        inventory_description.clear();
         inventory_imageView.setImage(null);
-        imagePath = null;
+        currentImagePath = null;
     }
-    
-    public ObservableList<Inventory> inventoryDataList() {
-        ObservableList<Inventory> listData = FXCollections.observableArrayList();
-        String sql = "SELECT * FROM inventory";
-        connect = Database.connectDB();
-        
+
+    private boolean validateInput() {
+        if (inventory_productID.getText().isEmpty() ||
+            inventory_productName.getText().isEmpty() ||
+            inventory_season.getValue() == null ||
+            inventory_price.getText().isEmpty() ||
+            inventory_status.getValue() == null ||
+            inventory_stock.getText().isEmpty()) {
+            showAlert("Error", "Please fill in all required fields!", Alert.AlertType.ERROR);
+            return false;
+        }
+
         try {
+            Double.parseDouble(inventory_price.getText());
+            Integer.parseInt(inventory_stock.getText());
+        } catch (NumberFormatException e) {
+            showAlert("Error", "Please enter valid numbers for price and stock!", Alert.AlertType.ERROR);
+            return false;
+        }
+
+        return true;
+    }
+
+    private void showAlert(String title, String content, Alert.AlertType type) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
+    private void loadInventoryData() {
+        // TODO: Load data from database
+        // For now, adding some sample data
+        inventoryList.add(new InventoryData(
+            "P001",
+            "Rose",
+            "Spring",
+            25.99,
+            "Available",
+            100,
+            "2024-03-20",
+            "Beautiful red roses",
+            null
+        ));
+    }
+
+    // Profile Methods
+    @FXML
+    private void profileImportBtn() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select Profile Image");
+        fileChooser.getExtensionFilters().add(
+            new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg")
+        );
+
+        File selectedFile = fileChooser.showOpenDialog(null);
+        if (selectedFile != null) {
+            currentProfileImagePath = selectedFile.getAbsolutePath();
+            Image image = new Image(selectedFile.toURI().toString());
+            profile_image.setImage(image);
+        }
+    }
+
+    @FXML
+    private void profileSaveBtn() {
+        if (validateProfileInput()) {
+            // TODO: Save profile data to database
+            showAlert("Success", "Profile updated successfully!", Alert.AlertType.INFORMATION);
+        }
+    }
+
+    private boolean validateProfileInput() {
+        if (profile_username.getText().isEmpty() ||
+            profile_email.getText().isEmpty() ||
+            profile_phone.getText().isEmpty()) {
+            showAlert("Error", "Please fill in all required fields!", Alert.AlertType.ERROR);
+            return false;
+        }
+
+        if (!isValidEmail(profile_email.getText())) {
+            showAlert("Error", "Please enter a valid email address!", Alert.AlertType.ERROR);
+            return false;
+        }
+
+        if (!isValidPhone(profile_phone.getText())) {
+            showAlert("Error", "Please enter a valid phone number!", Alert.AlertType.ERROR);
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean isValidEmail(String email) {
+        return email.matches("^[A-Za-z0-9+_.-]+@(.+)$");
+    }
+
+    private boolean isValidPhone(String phone) {
+        return phone.matches("^\\d{10,11}$");
+    }
+
+    // Settings Methods
+    @FXML
+    private void settingsSaveBtn() {
+        if (validateSettingsInput()) {
+            // TODO: Save settings to database
+            showAlert("Success", "Settings updated successfully!", Alert.AlertType.INFORMATION);
+        }
+    }
+
+    private boolean validateSettingsInput() {
+        if (!settings_newPassword.getText().equals(settings_confirmPassword.getText())) {
+            showAlert("Error", "New passwords do not match!", Alert.AlertType.ERROR);
+            return false;
+        }
+        return true;
+    }
+
+    private void loadProfileData() {
+        // TODO: Load profile data from database
+        // For now, setting placeholder data
+        profile_username.setText("Admin User");
+        profile_email.setText("admin@example.com");
+        profile_phone.setText("1234567890");
+    }
+
+    @FXML
+    private void switchForm(ActionEvent event) {
+        inventory_form.setVisible(false);
+        profile_form.setVisible(false);
+        settings_form.setVisible(false);
+
+        if (event.getSource() == inventory_btn) {
+            inventory_form.setVisible(true);
+            loadInventoryData();
+        } else if (event.getSource() == dashboard_btn) {
+            // Placeholder for Dashboard form
+            System.out.println("Switch to Dashboard form");
+        } else if (event.getSource() == menu_btn) {
+            // Placeholder for In Season form
+            System.out.println("Switch to In Season form");
+        } else if (event.getSource() == manageorders_btn) {
+            // Placeholder for Manage Orders form
+            System.out.println("Switch to Manage Orders form");
+        } else if (event.getSource() == profile_btn) {
+            profile_form.setVisible(true);
+            loadProfileData();
+        } else if (event.getSource() == settings_btn) {
+            settings_form.setVisible(true);
+        }
+    }
+
+    @FXML
+    public void logout() {
+        try {
+            alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirmation Message");
+            alert.setHeaderText(null);
+            alert.setContentText("Are you sure you want to logout?");
+            Optional<ButtonType> option = alert.showAndWait();
+            if (option.isPresent() && option.get() == ButtonType.OK) {
+                logout_btn.getScene().getWindow().hide();
+                Parent root = FXMLLoader.load(getClass().getResource("FXMLDocument.fxml"));
+                Stage stage = new Stage();
+                Scene scene = new Scene(root);
+                stage.setTitle("Flower Ordering System");
+                stage.setScene(scene);
+                stage.show();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void addInventory() {
+        try {
+            String sql = "INSERT INTO product (product_id, product_name, season, price, stock, image) VALUES (?, ?, ?, ?, ?, ?)";
+            connect = database.connectDB();
             prepare = connect.prepareStatement(sql);
-            result = prepare.executeQuery();
-            
-            Inventory inventory;
-            
-            while (result.next()) {
-                inventory = new Inventory(
-                    result.getInt("product_id"),
-                    result.getString("product_name"),
-                    result.getString("season"),
-                    result.getDouble("price"),
-                    result.getString("status"),
-                    result.getInt("stock"),
-                    result.getDate("date").toLocalDate(),
-                    result.getString("description"),
-                    result.getString("image")
-                );
-                listData.add(inventory);
+            prepare.setString(1, inventory_productID.getText());
+            prepare.setString(2, inventory_productName.getText());
+            prepare.setString(3, inventory_season.getValue());
+            prepare.setDouble(4, Double.parseDouble(inventory_price.getText()));
+            prepare.setInt(5, Integer.parseInt(inventory_stock.getText()));
+            prepare.setString(6, inventory_image.getText());
+
+            prepare.executeUpdate();
+            showAlert("Success", "Product added successfully!", Alert.AlertType.INFORMATION);
+            clearInventoryFields();
+            displayInventory();
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to add product. Please check your input.", Alert.AlertType.ERROR);
+        }
+    }
+
+    private void displayInventory() {
+        try {
+            Connection conn = getConnection();
+            String query = "SELECT * FROM product";
+            PreparedStatement pst = conn.prepareStatement(query);
+            ResultSet rs = pst.executeQuery();
+
+            inventory_grid.getChildren().clear();
+            int column = 0;
+            int row = 0;
+            int maxColumns = 3;
+
+            while (rs.next()) {
+                String product_id = rs.getString("product_id");
+                String product_name = rs.getString("product_name");
+                String description = rs.getString("description");
+                String season = rs.getString("season");
+                double price = rs.getDouble("price");
+                int stock = rs.getInt("stock");
+                String image = rs.getString("image");
+
+                // Load the item card FXML
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/final_flowerorderingsystem/itemCard.fxml"));
+                VBox itemCard = loader.load();
+                ItemCardController controller = loader.getController();
+
+                // Set the data
+                controller.setData(product_id, product_name, description, season, price, image, stock, "Update");
+
+                // Set up the action button
+                controller.getActionButton().setOnAction(e -> {
+                    inventory_productID.setText(product_id);
+                    inventory_productName.setText(product_name);
+                    inventory_description.setText(description);
+                    inventory_season.setValue(season);
+                    inventory_price.setText(String.valueOf(price));
+                    inventory_stock.setText(String.valueOf(stock));
+                    inventory_image.setText(image);
+                });
+
+                // Add to grid
+                inventory_grid.add(itemCard, column, row);
+                column++;
+                if (column >= maxColumns) {
+                    column = 0;
+                    row++;
+                }
+            }
+
+            rs.close();
+            pst.close();
+            conn.close();
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to load inventory data", Alert.AlertType.ERROR);
+        }
+    }
+
+    private Connection getConnection() throws SQLException {
+        return database.connectDB();
+    }
+
+    private void closeResources() {
+        try {
+            if (result != null) {
+                result.close();
+            }
+            if (prepare != null) {
+                prepare.close();
+            }
+            if (connect != null) {
+                connect.close();
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return listData;
     }
-    
-    private ObservableList<Inventory> inventoryListData;
-    
-    public void inventoryShowData() {
-        inventoryListData = inventoryDataList();
-        
-        inventory_col_productID.setCellValueFactory(data -> new SimpleStringProperty(String.valueOf(data.getValue().getProductId())));
-        inventory_col_productName.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getProductName()));
-        inventory_col_season.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getSeason()));
-        inventory_col_price.setCellValueFactory(data -> new SimpleStringProperty(String.valueOf(data.getValue().getPrice())));
-        inventory_col_status.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getStatus()));
-        inventory_col_stock.setCellValueFactory(data -> new SimpleStringProperty(String.valueOf(data.getValue().getStock())));
-        inventory_col_date.setCellValueFactory(data -> new SimpleStringProperty(String.valueOf(data.getValue().getDate())));
-        inventory_col_description.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getDescription()));
-        
-        inventory_tableView.setItems(inventoryListData);
+
+    private void clearInventoryFields() {
+        inventory_productID.clear();
+        inventory_productName.clear();
+        inventory_season.setValue(null);
+        inventory_price.clear();
+        inventory_stock.clear();
+        inventory_image.clear();
     }
-    
-    public void inventorySelectData() {
-        Inventory inventory = inventory_tableView.getSelectionModel().getSelectedItem();
-        int num = inventory_tableView.getSelectionModel().getSelectedIndex();
-        
-        if ((num - 1) < -1) {
-            return;
-        }
-        
-        inventory_productID.setText(String.valueOf(inventory.getProductId()));
-        inventory_productName.setText(inventory.getProductName());
-        inventory_season.setValue(inventory.getSeason());
-        inventory_price.setText(String.valueOf(inventory.getPrice()));
-        inventory_status.setValue(inventory.getStatus());
-        inventory_stock.setText(String.valueOf(inventory.getStock()));
-        inventory_description.setText(inventory.getDescription());
-        
-        imagePath = inventory.getImagePath();
-        image = new Image(imagePath, 160, 140, false, true);
-        inventory_imageView.setImage(image);
-    }
-} 
+}
