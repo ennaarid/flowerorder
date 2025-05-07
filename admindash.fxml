@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import java.lang.String?>
 <?import javafx.scene.chart.AreaChart?>
 <?import javafx.scene.chart.BarChart?>
@@ -13,8 +14,12 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.CheckBox?>
 
-<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.flowermanagementsystem.AdminDashboardController">
+<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.final_flowerorderingsystem.adminDashController">
    <children>
       <AnchorPane fx:id="main_form" prefHeight="200.0" prefWidth="200.0">
          <children>
@@ -33,7 +38,7 @@
                                     </Label>
                                  </children>
                               </AnchorPane>
-                              <Button fx:id="menu_btn" layoutX="17.0" layoutY="102.0" mnemonicParsing="false" onAction="#switchForm" prefHeight="21.0" prefWidth="222.0" styleClass="nav-btn" stylesheets="@mainFormDesign.css" text="In Season" AnchorPane.leftAnchor="17.0" AnchorPane.rightAnchor="17.0">
+                              <Button fx:id="menu_btn" layoutX="17.0" layoutY="102.0" mnemonicParsing="false" onAction="#switchForm" prefHeight="21.0" prefWidth="222.0" styleClass="nav-btn" stylesheets="@mainFormDesign.css" text="Catalog" AnchorPane.leftAnchor="17.0" AnchorPane.rightAnchor="17.0">
                                  <font>
                                     <Font name="Montserrat Regular" size="18.0" />
                                  </font>
@@ -53,18 +58,26 @@
                                     <Font size="16.0" />
                                  </font>
                               </Button>
-                              <Button fx:id="bouquets_btn" layoutX="17.0" layoutY="146.0" mnemonicParsing="false" onAction="#switchForm" prefHeight="21.0" prefWidth="222.0" styleClass="nav-btn" stylesheets="@mainFormDesign.css" text="Bouquets" AnchorPane.leftAnchor="17.0" AnchorPane.rightAnchor="17.0">
+                              <Button fx:id="profile_btn" layoutX="17.0" layoutY="533.0" mnemonicParsing="false" onAction="#switchForm" prefHeight="41.0" prefWidth="222.0" styleClass="nav-btn" stylesheets="@mainFormDesign.css" text="Profile" AnchorPane.leftAnchor="17.0" AnchorPane.rightAnchor="17.0">
                                  <font>
-                                    <Font name="Montserrat Regular" size="18.0" />
+                                    <Font size="16.0" />
                                  </font>
                               </Button>
-                              <Button fx:id="logout_btn" layoutX="22.0" layoutY="546.0" mnemonicParsing="false" onAction="#handleLogout" text="Logout" stylesheets="@mainFormDesign.css" AnchorPane.bottomAnchor="19.0" AnchorPane.leftAnchor="22.0" AnchorPane.rightAnchor="200.0">
+                              <Button fx:id="settings_btn" layoutX="17.0" layoutY="580.0" mnemonicParsing="false" onAction="#switchForm" prefHeight="41.0" prefWidth="222.0" styleClass="nav-btn" stylesheets="@mainFormDesign.css" text="Settings" AnchorPane.leftAnchor="17.0" AnchorPane.rightAnchor="17.0">
+                                 <font>
+                                    <Font size="16.0" />
+                                 </font>
+                              </Button>
+                              <Button fx:id="logout_btn" layoutX="22.0" layoutY="703.0" mnemonicParsing="false" stylesheets="@mainFormDesign.css" AnchorPane.bottomAnchor="19.0" AnchorPane.leftAnchor="22.0" AnchorPane.rightAnchor="200.0">
+                                 <graphic>
+                                    <FontAwesomeIconView fill="WHITE" glyphName="SIGN_OUT" size="25" text="" />
+                                 </graphic>
                                  <styleClass>
                                     <String fx:value="logout" />
                                     <String fx:value="shadow" />
                                  </styleClass>
                               </Button>
-                              <Label layoutX="66.0" layoutY="557.0" text="Sign Out" AnchorPane.bottomAnchor="28.0" AnchorPane.leftAnchor="66.0" AnchorPane.rightAnchor="135.0">
+                              <Label layoutX="66.0" layoutY="714.0" text="Sign Out" AnchorPane.bottomAnchor="28.0" AnchorPane.leftAnchor="66.0" AnchorPane.rightAnchor="135.0">
                                  <font>
                                     <Font name="Montserrat Bold" size="12.0" />
                                  </font>
@@ -79,7 +92,7 @@
                      <children>
                         <AnchorPane fx:id="dashboard_form" prefHeight="600.0" prefWidth="1280.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                            <children>
-                              <AnchorPane prefHeight="230.0" prefWidth="914.0" stylesheets="@mainFormDesign.css" AnchorPane.leftAnchor="18.0" AnchorPane.rightAnchor="19.0" AnchorPane.topAnchor="21.0">
+                              <AnchorPane layoutX="20.0" layoutY="78.0" prefHeight="230.0" prefWidth="914.0" stylesheets="@mainFormDesign.css" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="17.0" AnchorPane.topAnchor="78.0">
                                  <styleClass>
                                     <String fx:value="white-bg" />
                                     <String fx:value="radius" />
@@ -172,8 +185,8 @@
                                     </ScrollPane>
                                  </children>
                               </AnchorPane>
-                              <Separator layoutX="24.0" layoutY="268.0" prefHeight="0.0" prefWidth="803.0" />
-                              <AnchorPane prefHeight="310.0" prefWidth="807.0" stylesheets="@mainFormDesign.css" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="19.0" AnchorPane.rightAnchor="18.0" AnchorPane.topAnchor="276.0">
+                              <Separator layoutX="29.0" layoutY="68.0" prefHeight="4.0" prefWidth="968.0" />
+                              <AnchorPane layoutY="329.0" prefHeight="377.0" prefWidth="987.0" stylesheets="@mainFormDesign.css" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="19.0" AnchorPane.rightAnchor="18.0" AnchorPane.topAnchor="329.0">
                                  <styleClass>
                                     <String fx:value="white-bg" />
                                     <String fx:value="radius" />
@@ -218,6 +231,62 @@
                               </AnchorPane>
                            </children>
                         </AnchorPane>
+                        <AnchorPane fx:id="profile_form" prefHeight="600.0" prefWidth="1280.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                           <children>
+                              <AnchorPane layoutY="86.0" prefHeight="406.0" prefWidth="972.0" stylesheets="@mainFormDesign.css" AnchorPane.bottomAnchor="228.0" AnchorPane.leftAnchor="24.0" AnchorPane.rightAnchor="28.0" AnchorPane.topAnchor="86.0">
+                                 <styleClass>
+                                    <String fx:value="white-bg" />
+                                    <String fx:value="radius" />
+                                    <String fx:value="shadow" />
+                                 </styleClass>
+                                 <children>
+                                    <ImageView fx:id="profile_image" fitHeight="150.0" fitWidth="150.0" layoutX="50.0" layoutY="50.0" pickOnBounds="true" preserveRatio="true" />
+                                    <Button fx:id="profile_changeImageBtn" layoutX="50.0" layoutY="220.0" mnemonicParsing="false" onAction="#changeProfileImage" prefHeight="35.0" prefWidth="150.0" styleClass="btn" stylesheets="@mainFormDesign.css" text="Change Image">
+                                       <font>
+                                          <Font name="Montserrat Bold" size="12.0" />
+                                       </font>
+                                    </Button>
+                                    <TextField fx:id="profile_username" layoutX="250.0" layoutY="50.0" prefHeight="35.0" prefWidth="300.0" promptText="Username" styleClass="radius" stylesheets="@mainFormDesign.css" />
+                                    <TextField fx:id="profile_email" layoutX="250.0" layoutY="100.0" prefHeight="35.0" prefWidth="300.0" promptText="Email" styleClass="radius" stylesheets="@mainFormDesign.css" />
+                                    <TextField fx:id="profile_phone" layoutX="250.0" layoutY="150.0" prefHeight="35.0" prefWidth="300.0" promptText="Phone Number" styleClass="radius" stylesheets="@mainFormDesign.css" />
+                                    <Button fx:id="profile_saveBtn" layoutX="250.0" layoutY="220.0" mnemonicParsing="false" onAction="#saveProfile" prefHeight="35.0" prefWidth="300.0" styleClass="btn" stylesheets="@mainFormDesign.css" text="Save Changes">
+                                       <font>
+                                          <Font name="Montserrat Bold" size="12.0" />
+                                       </font>
+                                    </Button>
+                                 </children>
+                              </AnchorPane>
+                           </children>
+                        </AnchorPane>
+                        <AnchorPane fx:id="settings_form" prefHeight="600.0" prefWidth="1280.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                           <children>
+                              <AnchorPane layoutY="86.0" prefHeight="406.0" prefWidth="972.0" stylesheets="@mainFormDesign.css" AnchorPane.bottomAnchor="228.0" AnchorPane.leftAnchor="24.0" AnchorPane.rightAnchor="28.0" AnchorPane.topAnchor="86.0">
+                                 <styleClass>
+                                    <String fx:value="white-bg" />
+                                    <String fx:value="radius" />
+                                    <String fx:value="shadow" />
+                                 </styleClass>
+                                 <children>
+                                    <PasswordField fx:id="settings_currentPassword" layoutX="50.0" layoutY="50.0" prefHeight="35.0" prefWidth="300.0" promptText="Current Password" styleClass="radius" stylesheets="@mainFormDesign.css" />
+                                    <PasswordField fx:id="settings_newPassword" layoutX="50.0" layoutY="100.0" prefHeight="35.0" prefWidth="300.0" promptText="New Password" styleClass="radius" stylesheets="@mainFormDesign.css" />
+                                    <PasswordField fx:id="settings_confirmPassword" layoutX="50.0" layoutY="150.0" prefHeight="35.0" prefWidth="300.0" promptText="Confirm New Password" styleClass="radius" stylesheets="@mainFormDesign.css" />
+                                    <CheckBox fx:id="settings_emailNotif" layoutX="50.0" layoutY="200.0" mnemonicParsing="false" text="Email Notifications" />
+                                    <CheckBox fx:id="settings_orderUpdates" layoutX="50.0" layoutY="230.0" mnemonicParsing="false" text="Order Updates" />
+                                    <CheckBox fx:id="settings_promotions" layoutX="50.0" layoutY="260.0" mnemonicParsing="false" text="Promotions" />
+                                    <Button fx:id="settings_saveBtn" layoutX="50.0" layoutY="310.0" mnemonicParsing="false" onAction="#saveSettings" prefHeight="35.0" prefWidth="300.0" styleClass="btn" stylesheets="@mainFormDesign.css" text="Save Changes">
+                                       <font>
+                                          <Font name="Montserrat Bold" size="12.0" />
+                                       </font>
+                                    </Button>
+                                 </children>
+                              </AnchorPane>
+                           </children>
+                        </AnchorPane>
+                        <Label layoutX="59.0" layoutY="39.0" text="Dashboard" textFill="#89ac46" AnchorPane.leftAnchor="29.0" AnchorPane.topAnchor="33.0">
+                           <font>
+                              <Font name="Montserrat Bold" size="29.0" />
+                           </font>
+                        </Label>
                      </children>
                   </AnchorPane>
                </center>
