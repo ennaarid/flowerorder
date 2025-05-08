@@ -1,4 +1,4 @@
-package com.example.final_flowerorderingsystem;
+package com.example.flowermanagementsystem;
 
 public class OrderData {
     private String receiptId;
@@ -77,4 +77,4 @@ public class OrderData {
     public void setPickupDate(String pickupDate) {
         this.pickupDate = pickupDate;
     }
-} 
+}
