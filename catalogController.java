@@ -1,4 +1,4 @@
-package com.example.final_flowerorderingsystem;
+package com.example.flowermanagementsystem;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -25,6 +25,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.io.IOException;
 
 public class catalogController implements Initializable {
 
@@ -89,11 +90,14 @@ public class catalogController implements Initializable {
         search_field.textProperty().addListener((observable, oldValue, newValue) -> {
             filterCatalog(null);
         });
+
+        // Add action to filter button
+        filter_btn.setOnAction(this::filterCatalog);
     }
 
     private void loadCatalogData() {
-        String sql = "SELECT * FROM product";
-        connect = database.connectDB();
+        String sql = "SELECT * FROM Flower";
+        connect = DatabaseConnector.connectDB();
 
         try {
             prepare = connect.prepareStatement(sql);
@@ -105,9 +109,8 @@ public class catalogController implements Initializable {
 
             while (result.next()) {
                 VBox itemBox = createCatalogItem(
-                    result.getString("product_id"),
-                    result.getString("product_name"),
-                    result.getString("season"),
+                    result.getString("flowerId"),
+                    result.getString("name"),
                     result.getDouble("price"),
                     result.getString("image")
                 );
@@ -127,21 +130,27 @@ public class catalogController implements Initializable {
         }
     }
 
-    private VBox createCatalogItem(String id, String name, String season, double price, String imagePath) {
+    private VBox createCatalogItem(String id, String name, double price, String imagePath) {
         VBox itemBox = new VBox(10);
         itemBox.setAlignment(Pos.CENTER);
         itemBox.setPadding(new Insets(10));
         itemBox.setStyle("-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 10);");
+        itemBox.setPrefWidth(200);
+        itemBox.setPrefHeight(250);
 
         // Image
         ImageView imageView = new ImageView();
         try {
-            Image image = new Image(getClass().getResourceAsStream("/com/example/final_flowerorderingsystem/images/" + imagePath));
+            Image image = new Image(getClass().getResourceAsStream("/com/example/flowermanagementsystem/flowers/" + imagePath));
             imageView.setImage(image);
         } catch (Exception e) {
             // Load default image if the specified image is not found
-            Image defaultImage = new Image(getClass().getResourceAsStream("/com/example/final_flowerorderingsystem/images/default_flower.png"));
-            imageView.setImage(defaultImage);
+            try {
+                Image defaultImage = new Image(getClass().getResourceAsStream("/com/example/flowermanagementsystem/flowers/rose.jpg"));
+                imageView.setImage(defaultImage);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
         imageView.setFitHeight(150);
         imageView.setFitWidth(150);
@@ -152,22 +161,59 @@ public class catalogController implements Initializable {
         nameLabel.setFont(Font.font("Montserrat Bold", 16));
         nameLabel.setTextAlignment(TextAlignment.CENTER);
 
-        // Season
-        Label seasonLabel = new Label("Season: " + season);
-        seasonLabel.setFont(Font.font("Montserrat Regular", 12));
-
         // Price
         Label priceLabel = new Label(String.format("₱%.2f", price));
         priceLabel.setFont(Font.font("Montserrat Bold", 14));
         priceLabel.setStyle("-fx-text-fill: #89ac46;");
 
-        // Add to Cart button
-        Button addToCartBtn = new Button("Add to Cart");
-        addToCartBtn.setStyle("-fx-background-color: #89ac46; -fx-text-fill: white; -fx-font-family: 'Montserrat Bold'; -fx-font-size: 12;");
-        addToCartBtn.setOnAction(e -> addToCart(id, name, price));
+        // Make the entire box clickable to view details
+        itemBox.setOnMouseClicked(e -> viewFlowerDetails(id, name, price, imagePath));
 
-        itemBox.getChildren().addAll(imageView, nameLabel, seasonLabel, priceLabel, addToCartBtn);
+        itemBox.getChildren().addAll(imageView, nameLabel, priceLabel);
         return itemBox;
+    }
+
+    private void viewFlowerDetails(String id, String name, double price, String imagePath) {
+        try {
+            // Fetch additional details from database
+            String sql = "SELECT * FROM Flower WHERE flowerId = ?";
+            connect = DatabaseConnector.connectDB();
+
+            String description = "";
+            String season = "";
+            int stock = 0;
+
+            try {
+                prepare = connect.prepareStatement(sql);
+                prepare.setString(1, id);
+                result = prepare.executeQuery();
+
+                if (result.next()) {
+                    description = result.getString("description");
+                    season = result.getString("season");
+                    stock = result.getInt("stock");
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } finally {
+                closeResources();
+            }
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("itemcard.fxml"));
+            Parent root = loader.load();
+
+            ItemCardController controller = loader.getController();
+            controller.setData(id, name, description, season, price, imagePath, stock, "Add to Cart");
+
+            Stage stage = new Stage();
+            Scene scene = new Scene(root);
+            stage.setTitle("Flower Details");
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Error", "Could not open flower details", Alert.AlertType.ERROR);
+        }
     }
 
     @FXML
@@ -179,9 +225,9 @@ public class catalogController implements Initializable {
         // Clear existing items
         catalog_grid.getChildren().clear();
 
-        String sql = "SELECT * FROM product WHERE 1=1";
+        String sql = "SELECT * FROM Flower WHERE 1=1";
         if (!searchText.isEmpty()) {
-            sql += " AND LOWER(product_name) LIKE ?";
+            sql += " AND LOWER(name) LIKE ?";
         }
         if (!selectedSeason.equals("All")) {
             sql += " AND season = ?";
@@ -190,7 +236,7 @@ public class catalogController implements Initializable {
             sql += " AND price " + getPriceFilterCondition(selectedPrice);
         }
 
-        connect = database.connectDB();
+        connect = DatabaseConnector.connectDB();
 
         try {
             prepare = connect.prepareStatement(sql);
@@ -211,9 +257,8 @@ public class catalogController implements Initializable {
 
             while (result.next()) {
                 VBox itemBox = createCatalogItem(
-                    result.getString("product_id"),
-                    result.getString("product_name"),
-                    result.getString("season"),
+                    result.getString("flowerId"),
+                    result.getString("name"),
                     result.getDouble("price"),
                     result.getString("image")
                 );
@@ -246,11 +291,6 @@ public class catalogController implements Initializable {
             default:
                 return "";
         }
-    }
-
-    private void addToCart(String productId, String productName, double price) {
-        // TODO: Implement add to cart functionality
-        showAlert("Success", productName + " added to cart!", Alert.AlertType.INFORMATION);
     }
 
     @FXML
@@ -296,7 +336,7 @@ public class catalogController implements Initializable {
             Optional<ButtonType> option = alert.showAndWait();
             if (option.isPresent() && option.get() == ButtonType.OK) {
                 logout_btn.getScene().getWindow().hide();
-                Parent root = FXMLLoader.load(getClass().getResource("FXMLDocument.fxml"));
+                Parent root = FXMLLoader.load(getClass().getResource("FlowerLogin.fxml"));
                 Stage stage = new Stage();
                 Scene scene = new Scene(root);
                 stage.setTitle("Flower Ordering System");
@@ -325,4 +365,4 @@ public class catalogController implements Initializable {
         alert.setContentText(content);
         alert.showAndWait();
     }
-} 
+}
