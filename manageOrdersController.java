@@ -2,14 +2,26 @@ package com.example.flowermanagementsystem;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.AnchorPane;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ResourceBundle;
 
 public class manageOrdersController implements Initializable {
+
+    @FXML
+    private AnchorPane main_form;
+
+    @FXML
+    private AnchorPane inventory_form;
 
     @FXML
     private TableView<OrderData> inventory_tableView;
@@ -30,6 +42,9 @@ public class manageOrdersController implements Initializable {
     private TableColumn<OrderData, String> inventory_col_status;
 
     @FXML
+    private TableColumn<OrderData, String> inventory_col_dateOrdered;
+
+    @FXML
     private TableColumn<OrderData, String> inventory_col_date;
 
     @FXML
@@ -44,6 +59,27 @@ public class manageOrdersController implements Initializable {
     @FXML
     private TextField searchField;
 
+    @FXML
+    private Button menu_btn;
+
+    @FXML
+    private Button dashboard_btn;
+
+    @FXML
+    private Button inventory_btn;
+
+    @FXML
+    private Button manageorders_btn;
+
+    @FXML
+    private Button profile_btn;
+
+    @FXML
+    private Button settings_btn;
+
+    @FXML
+    private Button logout_btn;
+
     private ObservableList<OrderData> orderList = FXCollections.observableArrayList();
 
     @Override
@@ -54,7 +90,8 @@ public class manageOrdersController implements Initializable {
         inventory_col_season.setCellValueFactory(new PropertyValueFactory<>("numberOfItems"));
         inventory_col_price.setCellValueFactory(new PropertyValueFactory<>("amount"));
         inventory_col_status.setCellValueFactory(new PropertyValueFactory<>("status"));
-        inventory_col_date.setCellValueFactory(new PropertyValueFactory<>("dateOrdered"));
+        inventory_col_dateOrdered.setCellValueFactory(new PropertyValueFactory<>("dateOrdered"));
+        inventory_col_date.setCellValueFactory(new PropertyValueFactory<>("pickupDate"));
 
         // Set up the table
         inventory_tableView.setItems(orderList);
@@ -63,6 +100,9 @@ public class manageOrdersController implements Initializable {
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
             filterOrders(newValue);
         });
+
+        // Load orders when the controller initializes
+        loadOrders();
     }
 
     @FXML
@@ -129,6 +169,36 @@ public class manageOrdersController implements Initializable {
         alert.showAndWait();
     }
 
+    /**
+     * Handles switching between different forms/views in the dashboard.
+     * 
+     * @param event The action event triggered by the button click
+     */
+    @FXML
+    public void switchForm(ActionEvent event) {
+        if (event.getSource() == dashboard_btn) {
+            // Navigate to dashboard
+            inventory_form.setVisible(false);
+        } else if (event.getSource() == inventory_btn) {
+            // Navigate to inventory
+            inventory_form.setVisible(false);
+        } else if (event.getSource() == manageorders_btn) {
+            // Show orders form
+            inventory_form.setVisible(true);
+            // Refresh the orders list
+            loadOrders();
+        } else if (event.getSource() == menu_btn) {
+            // Navigate to catalog
+            inventory_form.setVisible(false);
+        } else if (event.getSource() == profile_btn) {
+            // Navigate to profile
+            inventory_form.setVisible(false);
+        } else if (event.getSource() == settings_btn) {
+            // Navigate to settings
+            inventory_form.setVisible(false);
+        }
+    }
+
     // Method to load orders from database
     public void loadOrders() {
         orderList.clear();
@@ -146,8 +216,9 @@ public class manageOrdersController implements Initializable {
                 double amount = result.getDouble("total_amount");
                 String status = result.getString("status");
                 String dateOrdered = result.getString("order_date");
+                String pickupDate = "Not scheduled"; // Default value since pickup_date is not in the database
 
-                OrderData order = new OrderData(receiptId, user, numberOfItems, amount, status, dateOrdered);
+                OrderData order = new OrderData(receiptId, user, numberOfItems, amount, status, dateOrdered, pickupDate);
                 orderList.add(order);
             }
 
@@ -166,25 +237,4 @@ public class manageOrdersController implements Initializable {
         }
     }
 
-    @FXML
-    public void initialize() {
-        // Initialize table columns
-        inventory_col_productID.setCellValueFactory(new PropertyValueFactory<>("receiptId"));
-        inventory_col_productName.setCellValueFactory(new PropertyValueFactory<>("user"));
-        inventory_col_season.setCellValueFactory(new PropertyValueFactory<>("numberOfItems"));
-        inventory_col_price.setCellValueFactory(new PropertyValueFactory<>("amount"));
-        inventory_col_status.setCellValueFactory(new PropertyValueFactory<>("status"));
-        inventory_col_date.setCellValueFactory(new PropertyValueFactory<>("dateOrdered"));
-
-        // Set up the table
-        inventory_tableView.setItems(orderList);
-
-        // Add search functionality
-        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
-            filterOrders(newValue);
-        });
-
-        // Load orders when the controller initializes
-        loadOrders();
-    }
-} 
+}
