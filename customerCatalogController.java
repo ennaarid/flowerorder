@@ -1,4 +1,4 @@
-package com.example.final_flowerorderingsystem;
+package com.example.flowermanagementsystem;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -109,7 +109,7 @@ public class customerCatalogController implements Initializable {
                 String image = rs.getString("image");
 
                 // Load the item card FXML
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/final_flowerorderingsystem/itemCard.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/flowermanagementsystem/itemcard.fxml"));
                 VBox itemCard = loader.load();
                 ItemCardController controller = loader.getController();
 
@@ -157,7 +157,7 @@ public class customerCatalogController implements Initializable {
             sql += " AND price " + getPriceFilterCondition(selectedPrice);
         }
 
-        connect = database.connectDB();
+        connect = DatabaseConnector.connectDB();
 
         try {
             prepare = connect.prepareStatement(sql);
@@ -177,29 +177,36 @@ public class customerCatalogController implements Initializable {
             int maxColumns = 3;
 
             while (result.next()) {
-                ItemCard itemCard = new ItemCard(
-                    result.getString("product_id"),
-                    result.getString("product_name"),
-                    result.getString("season"),
-                    result.getDouble("price"),
-                    result.getString("image"),
-                    -1, // Stock not shown in catalog
-                    "Add to Cart"
-                );
+                String product_id = result.getString("product_id");
+                String product_name = result.getString("product_name");
+                String description = result.getString("description");
+                String season = result.getString("season");
+                double price = result.getDouble("price");
+                String image = result.getString("image");
 
-                // Set up the action button
-                itemCard.getActionButton().setOnAction(e -> addToCart(
-                    itemCard.getProductId(),
-                    itemCard.getProductName(),
-                    itemCard.getPrice()
-                ));
+                // Load the item card FXML
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/flowermanagementsystem/itemcard.fxml"));
+                    VBox itemCard = loader.load();
+                    ItemCardController controller = loader.getController();
 
-                catalog_grid.add(itemCard, column, row);
-                column++;
+                    // Set the data
+                    controller.setData(product_id, product_name, description, season, price, image, -1, "Add to Cart");
 
-                if (column == maxColumns) {
-                    column = 0;
-                    row++;
+                    // Set up the action button
+                    controller.getActionButton().setOnAction(e -> addToCart(product_id, product_name, price));
+
+                    // Add to grid
+                    catalog_grid.add(itemCard, column, row);
+                    column++;
+
+                    if (column == maxColumns) {
+                        column = 0;
+                        row++;
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    showAlert("Error", "Failed to load item card", Alert.AlertType.ERROR);
                 }
             }
         } catch (SQLException e) {
@@ -323,6 +330,6 @@ public class customerCatalogController implements Initializable {
     }
 
     private Connection getConnection() throws SQLException {
-        return database.connectDB();
+        return DatabaseConnector.connectDB();
     }
 } 
