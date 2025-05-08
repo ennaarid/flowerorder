@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.Font?>
 
-<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.flowermanagementsystem.manageOrdersController">
+<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.final_flowerorderingsystem.mainFormController">
    <children>
       <AnchorPane fx:id="main_form" prefHeight="200.0" prefWidth="200.0">
          <children>
@@ -99,8 +99,8 @@
                                           <TableColumn fx:id="inventory_col_productName" prefWidth="130.0" text="User" />
                                           <TableColumn fx:id="inventory_col_season" prefWidth="98.0" text="No, of Items" />
                                           <TableColumn fx:id="inventory_col_price" prefWidth="111.0" text="Amount" />
-                                          <TableColumn fx:id="inventory_col_status" prefWidth="105.0" text="Status" />
-                                          <TableColumn fx:id="inventory_col_dateOrdered" prefWidth="150.0" text="Date Ordered" />
+                                          <TableColumn prefWidth="105.0" text="Status" />
+                                          <TableColumn fx:id="inventory_col_status" prefWidth="150.0" text="Date Ordered" />
                                           <TableColumn fx:id="inventory_col_date" prefWidth="168.0" text="Date for Pickup" />
                                        </columns>
                                        <columnResizePolicy>
@@ -139,7 +139,7 @@
                                     <Font name="Montserrat Bold" size="29.0" />
                                  </font>
                               </Label>
-                              <TextField fx:id="searchField" layoutX="750.0" layoutY="30.0" prefHeight="35.0" prefWidth="230.0" promptText="Search" styleClass="radius" stylesheets="@mainFormDesign.css" AnchorPane.rightAnchor="44.0" AnchorPane.topAnchor="30.0" />
+                              <TextField layoutX="750.0" layoutY="30.0" prefHeight="35.0" prefWidth="230.0" promptText="Search" styleClass="radius" stylesheets="@mainFormDesign.css" AnchorPane.rightAnchor="44.0" AnchorPane.topAnchor="30.0" />
                            </children>
                         </AnchorPane>
                      </children>
