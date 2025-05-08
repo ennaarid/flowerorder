@@ -1,4 +1,4 @@
-package com.example.final_flowerorderingsystem;
+package com.example.flowermanagementsystem;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
-public class inventoryController implements Initializable {
+public class InventoryController implements Initializable {
 
     @FXML
     private AnchorPane main_form;
@@ -192,11 +192,11 @@ public class inventoryController implements Initializable {
         inventory_form.setVisible(true);
         profile_form.setVisible(false);
         settings_form.setVisible(false);
-        
+
         inventory_season.setItems(FXCollections.observableArrayList(
             "Wet", "Dry", "All Year Round"
         ));
-        
+
         inventory_status.setItems(FXCollections.observableArrayList(
             "Available", "Low Stock", "Out of Stock"
         ));
@@ -252,6 +252,15 @@ public class inventoryController implements Initializable {
     @FXML
     private void inventoryAddBtn() {
         if (validateInput()) {
+            // Update the image path field with the current image path
+            if (currentImagePath != null) {
+                inventory_image.setText(currentImagePath);
+            }
+
+            // Add to the database
+            addInventory();
+
+            // Also add to the in-memory list for immediate display
             InventoryData newItem = new InventoryData(
                 inventory_productID.getText(),
                 inventory_productName.getText(),
@@ -261,11 +270,10 @@ public class inventoryController implements Initializable {
                 Integer.parseInt(inventory_stock.getText()),
                 java.time.LocalDate.now().toString(),
                 inventory_description.getText(),
-                currentImagePath
+                currentImagePath != null ? currentImagePath : inventory_image.getText()
             );
             inventoryList.add(newItem);
             clearFields();
-            showAlert("Success", "Product added successfully!", Alert.AlertType.INFORMATION);
         }
     }
 
@@ -273,20 +281,50 @@ public class inventoryController implements Initializable {
     private void inventoryUpdateBtn() {
         InventoryData selectedItem = inventory_tableView.getSelectionModel().getSelectedItem();
         if (selectedItem != null && validateInput()) {
+            // Update the image path field with the current image path
+            if (currentImagePath != null) {
+                inventory_image.setText(currentImagePath);
+                selectedItem.setImagePath(currentImagePath);
+            }
+
+            // Update the database
+            updateInventory();
+
+            // Update the in-memory object
             selectedItem.setProductName(inventory_productName.getText());
             selectedItem.setSeason(inventory_season.getValue());
             selectedItem.setPrice(Double.parseDouble(inventory_price.getText()));
             selectedItem.setStatus(inventory_status.getValue());
             selectedItem.setStock(Integer.parseInt(inventory_stock.getText()));
             selectedItem.setDescription(inventory_description.getText());
-            if (currentImagePath != null) {
-                selectedItem.setImagePath(currentImagePath);
-            }
+
             inventory_tableView.refresh();
             clearFields();
-            showAlert("Success", "Product updated successfully!", Alert.AlertType.INFORMATION);
         } else {
             showAlert("Error", "Please select a product to update!", Alert.AlertType.ERROR);
+        }
+    }
+
+    private void updateInventory() {
+        try {
+            String sql = "UPDATE product SET product_name=?, season=?, price=?, stock=?, image=?, description=?, status=? WHERE product_id=?";
+            connect = DatabaseConnector.connectDB();
+            prepare = connect.prepareStatement(sql);
+            prepare.setString(1, inventory_productName.getText());
+            prepare.setString(2, inventory_season.getValue());
+            prepare.setDouble(3, Double.parseDouble(inventory_price.getText()));
+            prepare.setInt(4, Integer.parseInt(inventory_stock.getText()));
+            prepare.setString(5, currentImagePath != null ? currentImagePath : inventory_image.getText());
+            prepare.setString(6, inventory_description.getText());
+            prepare.setString(7, inventory_status.getValue());
+            prepare.setString(8, inventory_productID.getText());
+
+            prepare.executeUpdate();
+            showAlert("Success", "Product updated successfully!", Alert.AlertType.INFORMATION);
+            displayInventory();
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to update product. Please check your input.", Alert.AlertType.ERROR);
         }
     }
 
@@ -299,11 +337,39 @@ public class inventoryController implements Initializable {
     private void inventoryDeleteBtn() {
         InventoryData selectedItem = inventory_tableView.getSelectionModel().getSelectedItem();
         if (selectedItem != null) {
-            inventoryList.remove(selectedItem);
-            clearFields();
-            showAlert("Success", "Product deleted successfully!", Alert.AlertType.INFORMATION);
+            // Confirm deletion
+            Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmAlert.setTitle("Confirm Delete");
+            confirmAlert.setHeaderText(null);
+            confirmAlert.setContentText("Are you sure you want to delete this product?");
+
+            Optional<ButtonType> result = confirmAlert.showAndWait();
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                // Delete from database
+                deleteInventory(selectedItem.getProductID());
+
+                // Remove from in-memory list
+                inventoryList.remove(selectedItem);
+                clearFields();
+            }
         } else {
             showAlert("Error", "Please select a product to delete!", Alert.AlertType.ERROR);
+        }
+    }
+
+    private void deleteInventory(String productId) {
+        try {
+            String sql = "DELETE FROM product WHERE product_id = ?";
+            connect = DatabaseConnector.connectDB();
+            prepare = connect.prepareStatement(sql);
+            prepare.setString(1, productId);
+
+            prepare.executeUpdate();
+            showAlert("Success", "Product deleted successfully!", Alert.AlertType.INFORMATION);
+            displayInventory();
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to delete product from database.", Alert.AlertType.ERROR);
         }
     }
 
@@ -495,15 +561,17 @@ public class inventoryController implements Initializable {
     @FXML
     private void addInventory() {
         try {
-            String sql = "INSERT INTO product (product_id, product_name, season, price, stock, image) VALUES (?, ?, ?, ?, ?, ?)";
-            connect = database.connectDB();
+            String sql = "INSERT INTO product (product_id, product_name, season, price, stock, image, description, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            connect = DatabaseConnector.connectDB();
             prepare = connect.prepareStatement(sql);
             prepare.setString(1, inventory_productID.getText());
             prepare.setString(2, inventory_productName.getText());
             prepare.setString(3, inventory_season.getValue());
             prepare.setDouble(4, Double.parseDouble(inventory_price.getText()));
             prepare.setInt(5, Integer.parseInt(inventory_stock.getText()));
-            prepare.setString(6, inventory_image.getText());
+            prepare.setString(6, currentImagePath != null ? currentImagePath : inventory_image.getText());
+            prepare.setString(7, inventory_description.getText());
+            prepare.setString(8, inventory_status.getValue());
 
             prepare.executeUpdate();
             showAlert("Success", "Product added successfully!", Alert.AlertType.INFORMATION);
@@ -574,7 +642,7 @@ public class inventoryController implements Initializable {
     }
 
     private Connection getConnection() throws SQLException {
-        return database.connectDB();
+        return DatabaseConnector.connectDB();
     }
 
     private void closeResources() {
