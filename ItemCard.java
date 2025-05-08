@@ -1,4 +1,4 @@
-package com.example.final_flowerorderingsystem;
+package com.example.flowermanagementsystem;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -52,10 +52,10 @@ public class ItemCard extends VBox {
         // Image
         imageView = new ImageView();
         try {
-            Image image = new Image(getClass().getResourceAsStream("/com/example/final_flowerorderingsystem/images/" + imagePath));
+            Image image = new Image(getClass().getResourceAsStream("/com/example/flowermanagementsystem/flowers/" + imagePath));
             imageView.setImage(image);
         } catch (Exception e) {
-            Image defaultImage = new Image(getClass().getResourceAsStream("/com/example/final_flowerorderingsystem/images/default_flower.png"));
+            Image defaultImage = new Image(getClass().getResourceAsStream("/com/example/flowermanagementsystem/flowers/rose.jpg"));
             imageView.setImage(defaultImage);
         }
         imageView.setFitHeight(180);
@@ -98,10 +98,10 @@ public class ItemCard extends VBox {
         if (stock >= 0) {
             HBox stockBox = new HBox(5);
             stockBox.setAlignment(Pos.CENTER_LEFT);
-            
+
             Label stockLabel = new Label("Stock: " + stock);
             stockLabel.setFont(Font.font("Montserrat", 12));
-            
+
             // Color-coded stock status
             String stockColor;
             if (stock > 20) {
@@ -112,7 +112,7 @@ public class ItemCard extends VBox {
                 stockColor = "#f44336"; // Red for very low stock
             }
             stockLabel.setStyle("-fx-text-fill: " + stockColor + ";");
-            
+
             stockBox.getChildren().add(stockLabel);
             detailsBox.getChildren().add(stockBox);
         }
@@ -128,7 +128,7 @@ public class ItemCard extends VBox {
                             "-fx-background-radius: 25; " +
                             "-fx-cursor: hand;");
         actionButton.setMaxWidth(Double.MAX_VALUE);
-        
+
         // Hover effect for button
         actionButton.setOnMouseEntered(e -> 
             actionButton.setStyle("-fx-background-color: #7d9b3f; " +
