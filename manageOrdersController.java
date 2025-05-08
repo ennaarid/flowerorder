@@ -1,4 +1,4 @@
-package com.example.final_flowerorderingsystem;
+package com.example.flowermanagementsystem;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -13,37 +13,37 @@ public class manageOrdersController implements Initializable {
 
     @FXML
     private TableView<OrderData> inventory_tableView;
-    
+
     @FXML
     private TableColumn<OrderData, String> inventory_col_productID;
-    
+
     @FXML
     private TableColumn<OrderData, String> inventory_col_productName;
-    
+
     @FXML
     private TableColumn<OrderData, Integer> inventory_col_season;
-    
+
     @FXML
     private TableColumn<OrderData, Double> inventory_col_price;
-    
+
     @FXML
     private TableColumn<OrderData, String> inventory_col_status;
-    
+
     @FXML
     private TableColumn<OrderData, String> inventory_col_date;
-    
+
     @FXML
     private Button inventory_updateBtn;
-    
+
     @FXML
     private Button inventory_clearBtn;
-    
+
     @FXML
     private Button inventory_deleteBtn;
-    
+
     @FXML
     private TextField searchField;
-    
+
     private ObservableList<OrderData> orderList = FXCollections.observableArrayList();
 
     @Override
@@ -55,16 +55,16 @@ public class manageOrdersController implements Initializable {
         inventory_col_price.setCellValueFactory(new PropertyValueFactory<>("amount"));
         inventory_col_status.setCellValueFactory(new PropertyValueFactory<>("status"));
         inventory_col_date.setCellValueFactory(new PropertyValueFactory<>("dateOrdered"));
-        
+
         // Set up the table
         inventory_tableView.setItems(orderList);
-        
+
         // Add search functionality
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
             filterOrders(newValue);
         });
     }
-    
+
     @FXML
     private void inventoryUpdateBtn() {
         OrderData selectedOrder = inventory_tableView.getSelectionModel().getSelectedItem();
@@ -79,13 +79,13 @@ public class manageOrdersController implements Initializable {
             showAlert("No Selection", "Please select an order to update.");
         }
     }
-    
+
     @FXML
     private void inventoryClearBtn() {
         inventory_tableView.getSelectionModel().clearSelection();
         searchField.clear();
     }
-    
+
     @FXML
     private void inventoryDeleteBtn() {
         OrderData selectedOrder = inventory_tableView.getSelectionModel().getSelectedItem();
@@ -94,7 +94,7 @@ public class manageOrdersController implements Initializable {
             alert.setTitle("Delete Order");
             alert.setHeaderText(null);
             alert.setContentText("Are you sure you want to delete this order?");
-            
+
             if (alert.showAndWait().get() == ButtonType.OK) {
                 orderList.remove(selectedOrder);
                 // Implement database deletion here
@@ -103,13 +103,13 @@ public class manageOrdersController implements Initializable {
             showAlert("No Selection", "Please select an order to delete.");
         }
     }
-    
+
     private void filterOrders(String searchText) {
         if (searchText == null || searchText.isEmpty()) {
             inventory_tableView.setItems(orderList);
             return;
         }
-        
+
         ObservableList<OrderData> filteredList = FXCollections.observableArrayList();
         for (OrderData order : orderList) {
             if (order.getReceiptId().toLowerCase().contains(searchText.toLowerCase()) ||
@@ -120,7 +120,7 @@ public class manageOrdersController implements Initializable {
         }
         inventory_tableView.setItems(filteredList);
     }
-    
+
     private void showAlert(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle(title);
@@ -128,11 +128,63 @@ public class manageOrdersController implements Initializable {
         alert.setContentText(content);
         alert.showAndWait();
     }
-    
+
     // Method to load orders from database
     public void loadOrders() {
-        // Implement database loading logic here
-        // This is where you would fetch orders from your database
-        // and add them to the orderList
+        orderList.clear();
+
+        try {
+            Connection connect = DatabaseConnector.connectDB();
+            String query = "SELECT * FROM orders";
+            PreparedStatement prepare = connect.prepareStatement(query);
+            ResultSet result = prepare.executeQuery();
+
+            while (result.next()) {
+                String receiptId = result.getString("order_id");
+                String user = result.getString("customer_id");
+                int numberOfItems = result.getInt("item_count");
+                double amount = result.getDouble("total_amount");
+                String status = result.getString("status");
+                String dateOrdered = result.getString("order_date");
+
+                OrderData order = new OrderData(receiptId, user, numberOfItems, amount, status, dateOrdered);
+                orderList.add(order);
+            }
+
+            // Close resources
+            result.close();
+            prepare.close();
+            connect.close();
+
+            // Apply search filter if there's text in the search field
+            if (searchField.getText() != null && !searchField.getText().isEmpty()) {
+                filterOrders(searchField.getText());
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to load orders from database: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    public void initialize() {
+        // Initialize table columns
+        inventory_col_productID.setCellValueFactory(new PropertyValueFactory<>("receiptId"));
+        inventory_col_productName.setCellValueFactory(new PropertyValueFactory<>("user"));
+        inventory_col_season.setCellValueFactory(new PropertyValueFactory<>("numberOfItems"));
+        inventory_col_price.setCellValueFactory(new PropertyValueFactory<>("amount"));
+        inventory_col_status.setCellValueFactory(new PropertyValueFactory<>("status"));
+        inventory_col_date.setCellValueFactory(new PropertyValueFactory<>("dateOrdered"));
+
+        // Set up the table
+        inventory_tableView.setItems(orderList);
+
+        // Add search functionality
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filterOrders(newValue);
+        });
+
+        // Load orders when the controller initializes
+        loadOrders();
     }
 } 
