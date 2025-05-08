@@ -1,4 +1,4 @@
-package com.example.cart;
+package com.example.flowermanagementsystem;
 
 public class Flower {
     private String name;
