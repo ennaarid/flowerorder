@@ -1,4 +1,4 @@
-package com.example.final_flowerorderingsystem;
+package com.example.flowermanagementsystem;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -77,7 +77,7 @@ public class CartController {
     @FXML
     public void goBack() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("some_previous_form.fxml")); // Replace with the actual FXML file you want to go back to
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("catalog.fxml"));
             Parent root = loader.load();
             Stage stage = (Stage) totalLabel.getScene().getWindow();
             stage.setScene(new Scene(root));
@@ -88,7 +88,7 @@ public class CartController {
 
     private void loadOrderReceipt(Order order) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("order_receipt.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("order_reciept.fxml"));
             Parent root = loader.load();
 
             OrderReceiptController controller = loader.getController();
