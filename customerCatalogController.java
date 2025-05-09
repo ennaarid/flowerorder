@@ -92,6 +92,10 @@ public class customerCatalogController implements Initializable {
     private void loadCatalogData() {
         try {
             Connection conn = getConnection();
+            if (conn == null) {
+                showAlert("Database Error", "Could not connect to the database. Please check your database connection.", Alert.AlertType.ERROR);
+                return;
+            }
             String query = "SELECT * FROM product";
             PreparedStatement pst = conn.prepareStatement(query);
             ResultSet rs = pst.executeQuery();
@@ -158,6 +162,10 @@ public class customerCatalogController implements Initializable {
         }
 
         connect = DatabaseConnector.connectDB();
+        if (connect == null) {
+            showAlert("Database Error", "Could not connect to the database. Please check your database connection.", Alert.AlertType.ERROR);
+            return;
+        }
 
         try {
             prepare = connect.prepareStatement(sql);
@@ -239,53 +247,64 @@ public class customerCatalogController implements Initializable {
     @FXML
     private void openCart() {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("cart.fxml"));
-            Stage stage = new Stage();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("cart.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) main_form.getScene().getWindow();
             Scene scene = new Scene(root);
             stage.setTitle("Shopping Cart");
             stage.setScene(scene);
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
+            showAlert("Navigation Error", "Could not open cart: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
     @FXML
     private void openOrderHistory() {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("orderHistory.fxml"));
-            Stage stage = new Stage();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("orderHistory.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) main_form.getScene().getWindow();
             Scene scene = new Scene(root);
             stage.setTitle("Order History");
             stage.setScene(scene);
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
+            showAlert("Navigation Error", "Could not open order history: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
     @FXML
     public void switchForm(ActionEvent event) {
         try {
-            if (event.getSource() == profile_btn) {
-                Parent root = FXMLLoader.load(getClass().getResource("profile.fxml"));
-                Stage stage = new Stage();
-                Scene scene = new Scene(root);
-                stage.setTitle("Profile");
-                stage.setScene(scene);
-                stage.show();
-                main_form.getScene().getWindow().hide();
+            String fxmlFile = null;
+            String title = null;
+
+            if (event.getSource() == menu_btn) {
+                fxmlFile = "userCatalog.fxml";
+                title = "Catalog";
+            } else if (event.getSource() == profile_btn) {
+                fxmlFile = "profile.fxml";
+                title = "Profile";
             } else if (event.getSource() == settings_btn) {
-                Parent root = FXMLLoader.load(getClass().getResource("settings.fxml"));
-                Stage stage = new Stage();
+                fxmlFile = "settings.fxml";
+                title = "Settings";
+            }
+
+            if (fxmlFile != null) {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
+                Parent root = loader.load();
+                Stage stage = (Stage) main_form.getScene().getWindow();
                 Scene scene = new Scene(root);
-                stage.setTitle("Settings");
+                stage.setTitle(title);
                 stage.setScene(scene);
                 stage.show();
-                main_form.getScene().getWindow().hide();
             }
         } catch (Exception e) {
             e.printStackTrace();
+            showAlert("Navigation Error", "Failed to navigate to the selected page: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
