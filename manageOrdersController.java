@@ -176,26 +176,68 @@ public class manageOrdersController implements Initializable {
      */
     @FXML
     public void switchForm(ActionEvent event) {
-        if (event.getSource() == dashboard_btn) {
-            // Navigate to dashboard
-            inventory_form.setVisible(false);
-        } else if (event.getSource() == inventory_btn) {
-            // Navigate to inventory
-            inventory_form.setVisible(false);
-        } else if (event.getSource() == manageorders_btn) {
-            // Show orders form
-            inventory_form.setVisible(true);
-            // Refresh the orders list
-            loadOrders();
-        } else if (event.getSource() == menu_btn) {
-            // Navigate to catalog
-            inventory_form.setVisible(false);
-        } else if (event.getSource() == profile_btn) {
-            // Navigate to profile
-            inventory_form.setVisible(false);
-        } else if (event.getSource() == settings_btn) {
-            // Navigate to settings
-            inventory_form.setVisible(false);
+        try {
+            String fxmlFile = null;
+            String title = null;
+
+            if (event.getSource() == dashboard_btn) {
+                fxmlFile = "/com/example/flowermanagementsystem/admindash.fxml";
+                title = "Dashboard";
+            } else if (event.getSource() == inventory_btn) {
+                fxmlFile = "/com/example/flowermanagementsystem/inventory.fxml";
+                title = "Inventory";
+            } else if (event.getSource() == manageorders_btn) {
+                fxmlFile = "/com/example/flowermanagementsystem/manageOrders.fxml";
+                title = "Manage Orders";
+            } else if (event.getSource() == menu_btn) {
+                fxmlFile = "/com/example/flowermanagementsystem/catalog.fxml";
+                title = "Catalog";
+            } else if (event.getSource() == profile_btn) {
+                fxmlFile = "/com/example/flowermanagementsystem/profile.fxml";
+                title = "Profile";
+            } else if (event.getSource() == settings_btn) {
+                fxmlFile = "/com/example/flowermanagementsystem/settings.fxml";
+                title = "Settings";
+            }
+
+            if (fxmlFile != null) {
+                javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource(fxmlFile));
+                javafx.scene.Parent root = loader.load();
+                javafx.stage.Stage stage = (javafx.stage.Stage) main_form.getScene().getWindow();
+                javafx.scene.Scene scene = new javafx.scene.Scene(root);
+                stage.setTitle(title);
+                stage.setScene(scene);
+                stage.show();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Navigation Error", "Failed to navigate to the selected page: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Handles the logout functionality.
+     */
+    @FXML
+    public void logout() {
+        try {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirmation Message");
+            alert.setHeaderText(null);
+            alert.setContentText("Are you sure you want to logout?");
+
+            if (alert.showAndWait().get() == ButtonType.OK) {
+                javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/com/example/flowermanagementsystem/FlowerLogin.fxml"));
+                javafx.scene.Parent root = loader.load();
+                javafx.stage.Stage stage = (javafx.stage.Stage) main_form.getScene().getWindow();
+                javafx.scene.Scene scene = new javafx.scene.Scene(root);
+                stage.setTitle("Flower Ordering System - Login");
+                stage.setScene(scene);
+                stage.show();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Logout Error", "Failed to logout: " + e.getMessage());
         }
     }
 
