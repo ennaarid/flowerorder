@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.Font?>
 
-<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.final_flowerorderingsystem.inventoryController">
+<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.flowermanagementsystem.InventoryController">
    <children>
       <AnchorPane fx:id="main_form" prefHeight="200.0" prefWidth="200.0">
          <children>
@@ -176,6 +176,7 @@
                                           <Font name="Montserrat Bold" size="12.0" />
                                        </font>
                                     </Button>
+                                    <TextField fx:id="inventory_image" layoutX="600.0" layoutY="178.0" prefHeight="39.0" prefWidth="160.0" promptText="Image Path" visible="false" />
                                     <Button fx:id="inventory_addBtn" layoutX="803.0" layoutY="21.0" mnemonicParsing="false" onAction="#inventoryAddBtn" prefHeight="43.0" prefWidth="133.0" styleClass="btn" stylesheets="@mainFormDesign.css" text="Add" AnchorPane.rightAnchor="36.0">
                                        <font>
                                           <Font name="Montserrat Bold" size="12.0" />
