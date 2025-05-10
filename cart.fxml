@@ -31,9 +31,9 @@
                 </Label>
                 <AnchorPane>
                     <children>
-                        <Button layoutX="451.0" layoutY="5.0" mnemonicParsing="false" onAction="#checkout" text="Checkout" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="5.0" />
+                        <Button layoutX="451.0" layoutY="5.0" mnemonicParsing="false" onAction="#checkout" text="Checkout" style="-fx-background-color: #4CAF50; -fx-text-fill: white;" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="5.0" />
                         <Button layoutX="350.0" layoutY="5.0" mnemonicParsing="false" onAction="#removeFromCart" text="Remove" AnchorPane.rightAnchor="90.0" AnchorPane.topAnchor="5.0" />
-                        <Label text="Select item to remove:" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="8.0" />
+                        <Button layoutX="0.0" layoutY="5.0" mnemonicParsing="false" onAction="#goBack" text="Back to Catalog" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="5.0" />
                     </children>
                     <padding>
                         <Insets top="10.0" />
