@@ -1,52 +1,111 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.flowermanagementsystem.OrderReceiptController">
+<AnchorPane prefHeight="600.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.flowermanagementsystem.OrderReceiptController">
     <children>
-        <VBox layoutX="14.0" layoutY="14.0" prefHeight="372.0" prefWidth="572.0" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="14.0">
+        <VBox layoutX="14.0" layoutY="14.0" prefHeight="572.0" prefWidth="572.0" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="14.0">
             <children>
                 <Label text="Order Receipt">
                     <font>
-                        <Font size="18.0" />
+                        <Font size="24.0" />
                     </font>
                     <padding>
                         <Insets bottom="10.0" />
                     </padding>
                 </Label>
-                <Label fx:id="orderIdLabel" text="Order ID: " />
-                <Label fx:id="dateLabel" text="Date: " />
-                <Label fx:id="customerLabel" text="Customer: " />
-                <Label text="--- Items ---">
+                <Label fx:id="orderIdLabel" text="Order ID: ">
+                    <font>
+                        <Font size="14.0" />
+                    </font>
+                </Label>
+                <Label fx:id="dateLabel" text="Date: ">
+                    <font>
+                        <Font size="14.0" />
+                    </font>
+                </Label>
+                <Label fx:id="statusLabel" text="Status: ">
+                    <font>
+                        <Font size="14.0" />
+                    </font>
+                </Label>
+                <Label fx:id="customerLabel" text="Customer: ">
+                    <font>
+                        <Font size="14.0" />
+                    </font>
+                    <padding>
+                        <Insets bottom="10.0" />
+                    </padding>
+                </Label>
+
+                <Label text="Shipping Information" style="-fx-font-weight: bold;">
+                    <font>
+                        <Font size="16.0" />
+                    </font>
                     <padding>
                         <Insets top="10.0" bottom="5.0" />
                     </padding>
-                    <font>
-                        <Font size="14.0" />
-                    </font>
                 </Label>
-                <VBox fx:id="itemsVBox" prefHeight="200.0" prefWidth="552.0" VBox.vgrow="ALWAYS" />
-                <Label fx:id="totalAmountLabel" text="Total Amount: Php 0.00">
+                <Label fx:id="shippingInfoLabel" text="Shipping To: " wrapText="true">
+                    <padding>
+                        <Insets bottom="10.0" />
+                    </padding>
+                </Label>
+
+                <Label text="Order Items" style="-fx-font-weight: bold;">
                     <font>
-                        <Font size="14.0" />
+                        <Font size="16.0" />
                     </font>
                     <padding>
                         <Insets top="10.0" bottom="5.0" />
                     </padding>
                 </Label>
-                <Label fx:id="paymentMethodLabel" text="Payment Method: " />
-                <Label text="Thank you for your order!">
+                <VBox fx:id="itemsVBox" prefHeight="150.0" prefWidth="552.0" style="-fx-border-color: #ddd; -fx-border-width: 1px; -fx-padding: 5px;">
                     <padding>
-                        <Insets top="15.0" />
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                     </padding>
+                </VBox>
+
+                <Label fx:id="totalAmountLabel" text="Total Amount: ₱0.00" style="-fx-font-weight: bold;">
+                    <font>
+                        <Font size="16.0" />
+                    </font>
+                    <padding>
+                        <Insets top="10.0" bottom="5.0" />
+                    </padding>
+                </Label>
+                <Label fx:id="paymentMethodLabel" text="Payment Method: ">
                     <font>
                         <Font size="14.0" />
                     </font>
                 </Label>
+                <Label text="Thank you for your order!" style="-fx-font-weight: bold;">
+                    <padding>
+                        <Insets top="15.0" bottom="15.0" />
+                    </padding>
+                    <font>
+                        <Font size="16.0" />
+                    </font>
+                </Label>
+
+                <HBox alignment="CENTER">
+                    <children>
+                        <Button fx:id="closeButton" mnemonicParsing="false" onAction="#closeReceipt" text="Close" style="-fx-background-color: #4CAF50; -fx-text-fill: white;">
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                            <padding>
+                                <Insets bottom="5.0" left="20.0" right="20.0" top="5.0" />
+                            </padding>
+                        </Button>
+                    </children>
+                </HBox>
             </children>
             <padding>
                 <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
