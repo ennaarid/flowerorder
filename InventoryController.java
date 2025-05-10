@@ -307,7 +307,7 @@ public class InventoryController implements Initializable {
 
     private void updateInventory() {
         try {
-            String sql = "UPDATE product SET product_name=?, season=?, price=?, stock=?, image=?, description=?, status=? WHERE product_id=?";
+            String sql = "UPDATE flowers SET product_name=?, season=?, price=?, stock=?, image=?, description=?, status=? WHERE product_id=?";
             connect = DatabaseConnector.connectDB();
             prepare = connect.prepareStatement(sql);
             prepare.setString(1, inventory_productName.getText());
@@ -359,7 +359,7 @@ public class InventoryController implements Initializable {
 
     private void deleteInventory(String productId) {
         try {
-            String sql = "DELETE FROM product WHERE product_id = ?";
+            String sql = "DELETE FROM flowers WHERE product_id = ?";
             connect = DatabaseConnector.connectDB();
             prepare = connect.prepareStatement(sql);
             prepare.setString(1, productId);
@@ -561,7 +561,7 @@ public class InventoryController implements Initializable {
     @FXML
     private void addInventory() {
         try {
-            String sql = "INSERT INTO product (product_id, product_name, season, price, stock, image, description, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO flowers (product_id, product_name, season, price, stock, image, description, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             connect = DatabaseConnector.connectDB();
             prepare = connect.prepareStatement(sql);
             prepare.setString(1, inventory_productID.getText());
@@ -586,7 +586,7 @@ public class InventoryController implements Initializable {
     private void displayInventory() {
         try {
             Connection conn = getConnection();
-            String query = "SELECT * FROM product";
+            String query = "SELECT * FROM flowers";
             PreparedStatement pst = conn.prepareStatement(query);
             ResultSet rs = pst.executeQuery();
 
@@ -605,7 +605,7 @@ public class InventoryController implements Initializable {
                 String image = rs.getString("image");
 
                 // Load the item card FXML
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/final_flowerorderingsystem/itemCard.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/flowermanagementsystem/itemcard.fxml"));
                 VBox itemCard = loader.load();
                 ItemCardController controller = loader.getController();
 
