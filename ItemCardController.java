@@ -232,20 +232,31 @@ public class ItemCardController {
             // First add to cart
             handleAddToCart();
 
-            // Then navigate to cart/checkout
+            // Then navigate directly to checkout
             try {
-                // Try to load the cart.fxml
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("cart.fxml"));
+                // Try to load the checkout.fxml
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/flowermanagementsystem/checkout.fxml"));
                 Parent root = loader.load();
 
                 Stage stage = (Stage) buy_now_button.getScene().getWindow();
                 stage.setScene(new Scene(root));
-                stage.setTitle("Shopping Cart");
+                stage.setTitle("Checkout");
                 stage.show();
             } catch (IOException e) {
-                // If cart.fxml doesn't exist or can't be loaded, show a message
-                showAlert("Cart", "Items added to cart: " + cartItems.size() + 
-                          "\nTotal: $" + calculateTotal(), AlertType.INFORMATION);
+                // If checkout.fxml doesn't exist, try to load cart.fxml as fallback
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/flowermanagementsystem/cart.fxml"));
+                    Parent root = loader.load();
+
+                    Stage stage = (Stage) buy_now_button.getScene().getWindow();
+                    stage.setScene(new Scene(root));
+                    stage.setTitle("Shopping Cart");
+                    stage.show();
+                } catch (IOException ex) {
+                    // If both fail, show a message
+                    showAlert("Cart", "Items added to cart: " + cartItems.size() + 
+                              "\nTotal: ₱" + String.format("%.2f", calculateTotal()), AlertType.INFORMATION);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
