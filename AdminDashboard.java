@@ -1,4 +1,4 @@
-package com.flowerorder;
+package com.example.flowermanagementsystem;
 
 import javafx.fxml.FXML;
 import javafx.scene.chart.AreaChart;
