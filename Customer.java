@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Customer {
     private List<OrderItem> cart = new ArrayList<>();
-    private String username; // Added a basic attribute
+    private String username; 
 
     public Customer(String username) {
         this.username = username;
