@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<SplitPane dividerPositions="0.4536205864751645" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" orientation="VERTICAL" prefHeight="670.0" prefWidth="546.0" stylesheets="@loginDesign.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.flowermanagementsystem.flowerloginController">
+<SplitPane dividerPositions="0.4536205864751645" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" orientation="VERTICAL" prefHeight="670.0" prefWidth="546.0" stylesheets="@loginDesign.css" xmlns="http://javafx.com/javafx/23.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.flowermanagementsystem.flowerloginController">
     <items>
         <AnchorPane fx:id="topPane" minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0" style="-fx-background-color: #E195ab;">
             <children>
@@ -55,11 +55,11 @@
                         <Font name="Montserrat Regular" size="8.0" />
                     </font>
                 </Label>
-            <Hyperlink fx:id="signUpLink" layoutX="306.0" layoutY="291.0" onAction="#handleSignUpLink" text="Sign Up" textAlignment="CENTER">
-               <font>
-                  <Font size="9.0" />
-               </font>
-            </Hyperlink>
+                <Hyperlink fx:id="signUpLink" layoutX="306.0" layoutY="291.0" onAction="#handleSignUpLink" text="Sign Up" textAlignment="CENTER">
+                    <font>
+                        <Font size="9.0" />
+                    </font>
+                </Hyperlink>
             </children></AnchorPane>
     </items>
 </SplitPane>
