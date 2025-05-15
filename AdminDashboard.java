@@ -51,17 +51,13 @@ public class AdminDashboard {
 
     public void updateRevenueChart() {
         try {
-            // Clear existing data
             revenue_chart.getData().clear();
 
-            // Connect to database
             Connection connection = DatabaseConnector.connectDB();
 
-            // Create a series for the chart
             javafx.scene.chart.XYChart.Series<String, Number> series = new javafx.scene.chart.XYChart.Series<>();
             series.setName("Monthly Revenue");
 
-            // Query monthly revenue data
             String query = "SELECT MONTH(order_date) as month, SUM(total_amount) as revenue " +
                           "FROM `order` " +
                           "WHERE YEAR(order_date) = YEAR(CURRENT_DATE()) " +
@@ -71,22 +67,17 @@ public class AdminDashboard {
             PreparedStatement statement = connection.prepareStatement(query);
             ResultSet resultSet = statement.executeQuery();
 
-            // Process results
             while (resultSet.next()) {
                 int month = resultSet.getInt("month");
                 double revenue = resultSet.getDouble("revenue");
 
-                // Convert month number to month name
                 String monthName = getMonthName(month);
 
-                // Add data to series
                 series.getData().add(new javafx.scene.chart.XYChart.Data<>(monthName, revenue));
             }
 
-            // Add series to chart
             revenue_chart.getData().add(series);
 
-            // Close resources
             resultSet.close();
             statement.close();
             connection.close();
@@ -94,20 +85,16 @@ public class AdminDashboard {
             System.err.println("Error updating revenue chart: " + e.getMessage());
             e.printStackTrace();
 
-            // Add sample data if database query fails
             addSampleRevenueData();
         }
     }
 
     private void addSampleRevenueData() {
-        // Clear existing data
         revenue_chart.getData().clear();
 
-        // Create a series for the chart
         javafx.scene.chart.XYChart.Series<String, Number> series = new javafx.scene.chart.XYChart.Series<>();
         series.setName("Monthly Revenue");
 
-        // Add sample data
         series.getData().add(new javafx.scene.chart.XYChart.Data<>("Jan", 5000));
         series.getData().add(new javafx.scene.chart.XYChart.Data<>("Feb", 7500));
         series.getData().add(new javafx.scene.chart.XYChart.Data<>("Mar", 10000));
@@ -115,7 +102,6 @@ public class AdminDashboard {
         series.getData().add(new javafx.scene.chart.XYChart.Data<>("May", 15000));
         series.getData().add(new javafx.scene.chart.XYChart.Data<>("Jun", 17500));
 
-        // Add series to chart
         revenue_chart.getData().add(series);
     }
 
@@ -139,17 +125,13 @@ public class AdminDashboard {
 
     public void updateCustomersChart() {
         try {
-            
             customers_chart.getData().clear();
 
-  
             Connection connection = DatabaseConnector.connectDB();
 
-           
             javafx.scene.chart.XYChart.Series<String, Number> series = new javafx.scene.chart.XYChart.Series<>();
             series.setName("New Customers");
 
-         
             String query = "SELECT MONTH(registration_date) as month, COUNT(*) as new_customers " +
                           "FROM Users " +
                           "WHERE YEAR(registration_date) = YEAR(CURRENT_DATE()) " +
@@ -164,14 +146,11 @@ public class AdminDashboard {
                 int month = resultSet.getInt("month");
                 int newCustomers = resultSet.getInt("new_customers");
 
-               
                 String monthName = getMonthName(month);
 
-          
                 series.getData().add(new javafx.scene.chart.XYChart.Data<>(monthName, newCustomers));
             }
 
-       
             customers_chart.getData().add(series);
 
             resultSet.close();
@@ -180,12 +159,12 @@ public class AdminDashboard {
         } catch (SQLException e) {
             System.err.println("Error updating customers chart: " + e.getMessage());
             e.printStackTrace();
-           addSampleCustomersData();
+
+            addSampleCustomersData();
         }
     }
 
     private void addSampleCustomersData() {
-   
         customers_chart.getData().clear();
 
         javafx.scene.chart.XYChart.Series<String, Number> series = new javafx.scene.chart.XYChart.Series<>();
@@ -200,4 +179,4 @@ public class AdminDashboard {
 
         customers_chart.getData().add(series);
     }
-} 
+}
