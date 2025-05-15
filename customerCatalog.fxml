@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.Font?>
 
-<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.flowermanagementsystem.userCatalogController">
+<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/23.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.flowermanagementsystem.customerCatalogController">
    <children>
       <AnchorPane fx:id="main_form" prefHeight="200.0" prefWidth="200.0">
          <children>
@@ -47,6 +47,11 @@
                                  </font>
                               </Button>
                               <Button fx:id="settings_btn" layoutX="17.0" layoutY="363.0" mnemonicParsing="false" onAction="#switchForm" prefHeight="41.0" prefWidth="222.0" styleClass="nav-btn" stylesheets="@mainFormDesign.css" text="Settings" AnchorPane.leftAnchor="17.0" AnchorPane.rightAnchor="17.0">
+                                 <font>
+                                    <Font size="16.0" />
+                                 </font>
+                              </Button>
+                              <Button fx:id="admin_btn" layoutX="17.0" layoutY="410.0" mnemonicParsing="false" onAction="#switchToAdminView" prefHeight="41.0" prefWidth="222.0" styleClass="nav-btn" stylesheets="@mainFormDesign.css" text="Admin Dashboard" AnchorPane.leftAnchor="17.0" AnchorPane.rightAnchor="17.0">
                                  <font>
                                     <Font size="16.0" />
                                  </font>
