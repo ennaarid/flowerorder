@@ -7,16 +7,10 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 
 import java.net.URL;
 import java.sql.Connection;
@@ -26,14 +20,48 @@ import java.sql.SQLException;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class catalogController implements Initializable {
+public abstract class catalogController extends BaseController implements Initializable {
+
+    private static final Logger LOGGER = Logger.getLogger(catalogController.class.getName());
+
+    @FXML
+    private GridPane catalog_grid;
+
+    @FXML
+    private Button filter_btn;
+
+    @FXML
+    private Button logout_btn;
 
     @FXML
     private AnchorPane main_form;
 
     @FXML
     private Button menu_btn;
+
+    @FXML
+    private Button orders_btn;
+
+    @FXML
+    private ComboBox<String> price_filter;
+
+    @FXML
+    private Button profile_btn;
+
+    @FXML
+    private TextField search_field;
+
+    @FXML
+    private ComboBox<String> season_filter;
+
+    @FXML
+    private Button settings_btn;
+
+    @FXML
+    private Button view_cart_btn;
 
     @FXML
     private Button dashboard_btn;
@@ -44,30 +72,6 @@ public class catalogController implements Initializable {
     @FXML
     private Button manageorders_btn;
 
-    @FXML
-    private Button profile_btn;
-
-    @FXML
-    private Button settings_btn;
-
-    @FXML
-    private Button logout_btn;
-
-    @FXML
-    private TextField search_field;
-
-    @FXML
-    private ComboBox<String> season_filter;
-
-    @FXML
-    private ComboBox<String> price_filter;
-
-    @FXML
-    private Button filter_btn;
-
-    @FXML
-    private GridPane catalog_grid;
-
     private Connection connect;
     private PreparedStatement prepare;
     private ResultSet result;
@@ -75,144 +79,100 @@ public class catalogController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // Initialize season filter
-        season_filter.getItems().addAll("All", "Wet", "Dry", "All Year Round");
-        season_filter.setValue("All");
+        if (season_filter != null) {
+            season_filter.getItems().addAll("All", "Wet", "Dry", "All Year Round");
+            season_filter.setValue("All");
+        }
 
-        // Initialize price filter
-        price_filter.getItems().addAll("All", "Under ₱100", "₱100 - ₱500", "₱500 - ₱1000", "Over ₱1000");
-        price_filter.setValue("All");
+        if (price_filter != null) {
+            price_filter.getItems().addAll("All", "Under ₱100", "₱100 - ₱500", "₱500 - ₱1000", "Over ₱1000");
+            price_filter.setValue("All");
+        }
 
-        // Load catalog data
         loadCatalogData();
 
-        // Add search listener
-        search_field.textProperty().addListener((observable, oldValue, newValue) -> {
-            filterCatalog(null);
-        });
+        if (search_field != null) {
+            search_field.textProperty().addListener((observable, oldValue, newValue) -> {
+                filterCatalog(null);
+            });
+        }
 
-        // Add action to filter button
-        filter_btn.setOnAction(this::filterCatalog);
+        if (filter_btn != null) {
+            filter_btn.setOnAction(this::filterCatalog);
+        }
+
+        if (view_cart_btn != null) {
+            view_cart_btn.setOnAction(this::openCart);
+        }
+
+        try {
+            if (orders_btn != null) {
+                orders_btn.setOnAction(this::openOrderHistory);
+            }
+        } catch (Exception e) {
+            System.err.println("Warning: orders_btn could not be initialized: " + e.getMessage());
+        }
     }
 
     private void loadCatalogData() {
-        String sql = "SELECT * FROM Flower";
-        connect = DatabaseConnector.connectDB();
+        if (catalog_grid == null) {
+            System.err.println("Warning: catalog_grid is null, cannot load catalog data");
+            return;
+        }
 
         try {
-            prepare = connect.prepareStatement(sql);
-            result = prepare.executeQuery();
+            Connection conn = getConnection();
+            if (conn == null) {
+                showAlert("Database Error", "Could not connect to the database. Please check your database connection.", Alert.AlertType.ERROR);
+                return;
+            }
+
+            String query = "SELECT * FROM flower";
+            PreparedStatement pst = conn.prepareStatement(query);
+            ResultSet rs = pst.executeQuery();
 
             int column = 0;
             int row = 0;
-            int maxColumns = 3; // Number of items per row
+            int maxColumns = 3;
 
-            while (result.next()) {
-                VBox itemBox = createCatalogItem(
-                    result.getString("flowerId"),
-                    result.getString("name"),
-                    result.getDouble("price"),
-                    result.getString("image")
-                );
+            while (rs.next()) {
+                try {
+                    String product_id = rs.getString("flowerId");
+                    String product_name = rs.getString("name");
+                    String description = rs.getString("description");
+                    String season = rs.getString("season");
+                    double price = rs.getDouble("price");
+                    String image = rs.getString("image");
 
-                catalog_grid.add(itemBox, column, row);
-                column++;
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/flowermanagementsystem/itemcard.fxml"));
+                    VBox itemCard = loader.load();
+                    ItemCardController controller = loader.getController();
 
-                if (column == maxColumns) {
-                    column = 0;
-                    row++;
+                    controller.setData(product_id, product_name, description, season, price, image, -1, "Add to Cart");
+
+                    controller.getActionButton().setOnAction(e -> addToCart(product_id, product_name, price));
+
+                    catalog_grid.add(itemCard, column, row);
+                    column++;
+                    if (column >= maxColumns) {
+                        column = 0;
+                        row++;
+                    }
+                } catch (Exception e) {
+                    System.err.println("Error processing flower item: " + e.getMessage());
+                    e.printStackTrace();
                 }
             }
+
+            rs.close();
+            pst.close();
+            conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            closeResources();
-        }
-    }
-
-    private VBox createCatalogItem(String id, String name, double price, String imagePath) {
-        VBox itemBox = new VBox(10);
-        itemBox.setAlignment(Pos.CENTER);
-        itemBox.setPadding(new Insets(10));
-        itemBox.setStyle("-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 10);");
-        itemBox.setPrefWidth(200);
-        itemBox.setPrefHeight(250);
-
-        // Image
-        ImageView imageView = new ImageView();
-        try {
-            Image image = new Image(getClass().getResourceAsStream("/com/example/flowermanagementsystem/flowers/" + imagePath));
-            imageView.setImage(image);
+            showAlert("Database Error", "Failed to load catalog data: " + e.getMessage(), Alert.AlertType.ERROR);
         } catch (Exception e) {
-            // Load default image if the specified image is not found
-            try {
-                Image defaultImage = new Image(getClass().getResourceAsStream("/com/example/flowermanagementsystem/flowers/rose.jpg"));
-                imageView.setImage(defaultImage);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
-        imageView.setFitHeight(150);
-        imageView.setFitWidth(150);
-        imageView.setPreserveRatio(true);
-
-        // Name
-        Label nameLabel = new Label(name);
-        nameLabel.setFont(Font.font("Montserrat Bold", 16));
-        nameLabel.setTextAlignment(TextAlignment.CENTER);
-
-        // Price
-        Label priceLabel = new Label(String.format("₱%.2f", price));
-        priceLabel.setFont(Font.font("Montserrat Bold", 14));
-        priceLabel.setStyle("-fx-text-fill: #89ac46;");
-
-        // Make the entire box clickable to view details
-        itemBox.setOnMouseClicked(e -> viewFlowerDetails(id, name, price, imagePath));
-
-        itemBox.getChildren().addAll(imageView, nameLabel, priceLabel);
-        return itemBox;
-    }
-
-    private void viewFlowerDetails(String id, String name, double price, String imagePath) {
-        try {
-            // Fetch additional details from database
-            String sql = "SELECT * FROM Flower WHERE flowerId = ?";
-            connect = DatabaseConnector.connectDB();
-
-            String description = "";
-            String season = "";
-            int stock = 0;
-
-            try {
-                prepare = connect.prepareStatement(sql);
-                prepare.setString(1, id);
-                result = prepare.executeQuery();
-
-                if (result.next()) {
-                    description = result.getString("description");
-                    season = result.getString("season");
-                    stock = result.getInt("stock");
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            } finally {
-                closeResources();
-            }
-
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("itemcard.fxml"));
-            Parent root = loader.load();
-
-            ItemCardController controller = loader.getController();
-            controller.setData(id, name, description, season, price, imagePath, stock, "Add to Cart");
-
-            Stage stage = new Stage();
-            Scene scene = new Scene(root);
-            stage.setTitle("Flower Details");
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
             e.printStackTrace();
-            showAlert("Error", "Could not open flower details", Alert.AlertType.ERROR);
+            showAlert("Error", "An unexpected error occurred while loading catalog data: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
@@ -222,10 +182,9 @@ public class catalogController implements Initializable {
         String selectedSeason = season_filter.getValue();
         String selectedPrice = price_filter.getValue();
 
-        // Clear existing items
         catalog_grid.getChildren().clear();
 
-        String sql = "SELECT * FROM Flower WHERE 1=1";
+        String sql = "SELECT * FROM flower WHERE 1=1";
         if (!searchText.isEmpty()) {
             sql += " AND LOWER(name) LIKE ?";
         }
@@ -237,6 +196,10 @@ public class catalogController implements Initializable {
         }
 
         connect = DatabaseConnector.connectDB();
+        if (connect == null) {
+            showAlert("Database Error", "Could not connect to the database. Please check your database connection.", Alert.AlertType.ERROR);
+            return;
+        }
 
         try {
             prepare = connect.prepareStatement(sql);
@@ -256,19 +219,32 @@ public class catalogController implements Initializable {
             int maxColumns = 3;
 
             while (result.next()) {
-                VBox itemBox = createCatalogItem(
-                    result.getString("flowerId"),
-                    result.getString("name"),
-                    result.getDouble("price"),
-                    result.getString("image")
-                );
+                String product_id = result.getString("flowerId");
+                String product_name = result.getString("name");
+                String description = result.getString("description");
+                String season = result.getString("season");
+                double price = result.getDouble("price");
+                String image = result.getString("image");
 
-                catalog_grid.add(itemBox, column, row);
-                column++;
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/flowermanagementsystem/itemcard.fxml"));
+                    VBox itemCard = loader.load();
+                    ItemCardController controller = loader.getController();
 
-                if (column == maxColumns) {
-                    column = 0;
-                    row++;
+                    controller.setData(product_id, product_name, description, season, price, image, -1, "Add to Cart");
+
+                    controller.getActionButton().setOnAction(e -> addToCart(product_id, product_name, price));
+
+                    catalog_grid.add(itemCard, column, row);
+                    column++;
+
+                    if (column == maxColumns) {
+                        column = 0;
+                        row++;
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    showAlert("Error", "Failed to load item card", Alert.AlertType.ERROR);
                 }
             }
         } catch (SQLException e) {
@@ -293,41 +269,140 @@ public class catalogController implements Initializable {
         }
     }
 
-    @FXML
-    public void switchForm(ActionEvent event) {
+    private CartService cartService = CartServiceImpl.getInstance();
+
+    private void addToCart(String productId, String productName, double price) {
         try {
-            if (event.getSource() == dashboard_btn) {
-                Parent root = FXMLLoader.load(getClass().getResource("admindash.fxml"));
-                Stage stage = new Stage();
-                Scene scene = new Scene(root);
-                stage.setTitle("Dashboard");
-                stage.setScene(scene);
-                stage.show();
-                main_form.getScene().getWindow().hide();
-            } else if (event.getSource() == inventory_btn) {
-                Parent root = FXMLLoader.load(getClass().getResource("inventory.fxml"));
-                Stage stage = new Stage();
-                Scene scene = new Scene(root);
-                stage.setTitle("Inventory");
-                stage.setScene(scene);
-                stage.show();
-                main_form.getScene().getWindow().hide();
-            } else if (event.getSource() == manageorders_btn) {
-                Parent root = FXMLLoader.load(getClass().getResource("manageOrders.fxml"));
-                Stage stage = new Stage();
-                Scene scene = new Scene(root);
-                stage.setTitle("Manage Orders");
-                stage.setScene(scene);
-                stage.show();
-                main_form.getScene().getWindow().hide();
-            }
+            cartService.addToCart(
+                productId,
+                productName,
+                price,
+                1,
+                ""
+            );
+
+            showAlert("Success", productName + " added to cart!", Alert.AlertType.INFORMATION);
         } catch (Exception e) {
             e.printStackTrace();
+            showAlert("Error", "Failed to add item to cart: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
     @FXML
-    public void logout() {
+    private void openCart(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/flowermanagementsystem/cart.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = null;
+            if (event.getSource() instanceof javafx.scene.Node) {
+                stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+            } else if (main_form != null && main_form.getScene() != null) {
+                stage = (Stage) main_form.getScene().getWindow();
+            } else if (view_cart_btn != null && view_cart_btn.getScene() != null) {
+                stage = (Stage) view_cart_btn.getScene().getWindow();
+            }
+
+            if (stage == null) {
+                stage = new Stage();
+                System.err.println("Warning: Creating new stage for cart because current stage could not be determined");
+            }
+
+            Scene scene = new Scene(root);
+            stage.setTitle("Shopping Cart");
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Navigation Error", "Could not open cart: " + e.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+
+    @FXML
+    private void openOrderHistory(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/flowermanagementsystem/orderHistory.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = null;
+            if (event.getSource() instanceof javafx.scene.Node) {
+                stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+            } else if (main_form != null && main_form.getScene() != null) {
+                stage = (Stage) main_form.getScene().getWindow();
+            } else if (orders_btn != null && orders_btn.getScene() != null) {
+                stage = (Stage) orders_btn.getScene().getWindow();
+            }
+
+            if (stage == null) {
+                stage = new Stage();
+                System.err.println("Warning: Creating new stage for order history because current stage could not be determined");
+            }
+
+            Scene scene = new Scene(root);
+            stage.setTitle("Order History");
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Navigation Error", "Could not open order history: " + e.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+
+    @FXML
+    public void switchForm(ActionEvent event) {
+        try {
+            String fxmlFile = null;
+            String title = null;
+
+            if (event.getSource() == menu_btn) {
+                fxmlFile = "/com/example/flowermanagementsystem/catalog.fxml";
+                title = "Catalog";
+            } else if (event.getSource() == profile_btn) {
+                fxmlFile = "/com/example/flowermanagementsystem/profile.fxml";
+                title = "Profile";
+            } else if (event.getSource() == settings_btn) {
+                fxmlFile = "/com/example/flowermanagementsystem/settings.fxml";
+                title = "Settings";
+            } else if (event.getSource() == dashboard_btn) {
+                fxmlFile = "/com/example/flowermanagementsystem/admindash.fxml";
+                title = "Dashboard";
+            } else if (event.getSource() == inventory_btn) {
+                fxmlFile = "/com/example/flowermanagementsystem/inventory.fxml";
+                title = "Inventory";
+            } else if (event.getSource() == manageorders_btn) {
+                fxmlFile = "/com/example/flowermanagementsystem/manageOrders.fxml";
+                title = "Manage Orders";
+            }
+
+            if (fxmlFile != null) {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
+                Parent root = loader.load();
+
+                Stage stage = null;
+                if (event.getSource() instanceof javafx.scene.Node) {
+                    stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+                } else if (main_form != null && main_form.getScene() != null) {
+                    stage = (Stage) main_form.getScene().getWindow();
+                }
+
+                if (stage == null) {
+                    stage = new Stage();
+                    System.err.println("Warning: Creating new stage for " + title + " because current stage could not be determined");
+                }
+
+                Scene scene = new Scene(root);
+                stage.setTitle(title);
+                stage.setScene(scene);
+                stage.show();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Navigation Error", "Failed to navigate to the selected page: " + e.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+
+    @FXML
+    public void logout(ActionEvent event) {
         try {
             alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Confirmation Message");
@@ -335,8 +410,23 @@ public class catalogController implements Initializable {
             alert.setContentText("Are you sure you want to logout?");
             Optional<ButtonType> option = alert.showAndWait();
             if (option.isPresent() && option.get() == ButtonType.OK) {
-                logout_btn.getScene().getWindow().hide();
-                Parent root = FXMLLoader.load(getClass().getResource("FlowerLogin.fxml"));
+                Stage currentStage = null;
+
+                if (event.getSource() instanceof javafx.scene.Node) {
+                    currentStage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+                } else if (logout_btn != null && logout_btn.getScene() != null) {
+                    currentStage = (Stage) logout_btn.getScene().getWindow();
+                } else if (main_form != null && main_form.getScene() != null) {
+                    currentStage = (Stage) main_form.getScene().getWindow();
+                }
+
+                if (currentStage != null) {
+                    currentStage.hide();
+                } else {
+                    System.err.println("Warning: Could not find current stage to hide");
+                }
+
+                Parent root = FXMLLoader.load(getClass().getResource("/com/example/flowermanagementsystem/FlowerLogin.fxml"));
                 Stage stage = new Stage();
                 Scene scene = new Scene(root);
                 stage.setTitle("Flower Ordering System");
@@ -345,6 +435,7 @@ public class catalogController implements Initializable {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            showAlert("Logout Error", "Failed to logout: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
@@ -364,5 +455,9 @@ public class catalogController implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();
+    }
+
+    private Connection getConnection() throws SQLException {
+        return DatabaseConnector.connectDB();
     }
 }
