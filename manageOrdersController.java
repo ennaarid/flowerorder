@@ -13,9 +13,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class manageOrdersController implements Initializable {
+public class manageOrdersController extends BaseController implements Initializable {
+
+    private static final Logger LOGGER = Logger.getLogger(manageOrdersController.class.getName());
+    private OrderService orderService;
 
     @FXML
     private AnchorPane main_form;
@@ -72,19 +78,14 @@ public class manageOrdersController implements Initializable {
     private Button manageorders_btn;
 
     @FXML
-    private Button profile_btn;
-
-    @FXML
-    private Button settings_btn;
-
-    @FXML
     private Button logout_btn;
 
     private ObservableList<OrderData> orderList = FXCollections.observableArrayList();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // Initialize table columns
+        orderService = OrderServiceImpl.getInstance();
+
         inventory_col_productID.setCellValueFactory(new PropertyValueFactory<>("receiptId"));
         inventory_col_productName.setCellValueFactory(new PropertyValueFactory<>("user"));
         inventory_col_season.setCellValueFactory(new PropertyValueFactory<>("numberOfItems"));
@@ -93,15 +94,12 @@ public class manageOrdersController implements Initializable {
         inventory_col_dateOrdered.setCellValueFactory(new PropertyValueFactory<>("dateOrdered"));
         inventory_col_date.setCellValueFactory(new PropertyValueFactory<>("pickupDate"));
 
-        // Set up the table
         inventory_tableView.setItems(orderList);
 
-        // Add search functionality
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
             filterOrders(newValue);
         });
 
-        // Load orders when the controller initializes
         loadOrders();
     }
 
@@ -109,14 +107,13 @@ public class manageOrdersController implements Initializable {
     private void inventoryUpdateBtn() {
         OrderData selectedOrder = inventory_tableView.getSelectionModel().getSelectedItem();
         if (selectedOrder != null) {
-            // Implement update logic here
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Update Order");
             alert.setHeaderText(null);
             alert.setContentText("Order update functionality to be implemented");
             alert.showAndWait();
         } else {
-            showAlert("No Selection", "Please select an order to update.");
+            showErrorAlert("No Selection", "Please select an order to update.");
         }
     }
 
@@ -137,10 +134,9 @@ public class manageOrdersController implements Initializable {
 
             if (alert.showAndWait().get() == ButtonType.OK) {
                 orderList.remove(selectedOrder);
-                // Implement database deletion here
             }
         } else {
-            showAlert("No Selection", "Please select an order to delete.");
+            showErrorAlert("No Selection", "Please select an order to delete.");
         }
     }
 
@@ -161,122 +157,56 @@ public class manageOrdersController implements Initializable {
         inventory_tableView.setItems(filteredList);
     }
 
-    private void showAlert(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
-    }
-
-    /**
-     * Handles switching between different forms/views in the dashboard.
-     * 
-     * @param event The action event triggered by the button click
-     */
     @FXML
     public void switchForm(ActionEvent event) {
         try {
-            String fxmlFile = null;
-            String title = null;
+            String viewName = null;
 
             if (event.getSource() == dashboard_btn) {
-                fxmlFile = "/com/example/flowermanagementsystem/admindash.fxml";
-                title = "Dashboard";
+                viewName = "admindash";
             } else if (event.getSource() == inventory_btn) {
-                fxmlFile = "/com/example/flowermanagementsystem/inventory.fxml";
-                title = "Inventory";
+                viewName = "inventory";
             } else if (event.getSource() == manageorders_btn) {
-                fxmlFile = "/com/example/flowermanagementsystem/manageOrders.fxml";
-                title = "Manage Orders";
+                viewName = "manageOrders";
             } else if (event.getSource() == menu_btn) {
-                fxmlFile = "/com/example/flowermanagementsystem/catalog.fxml";
-                title = "Catalog";
-            } else if (event.getSource() == profile_btn) {
-                fxmlFile = "/com/example/flowermanagementsystem/profile.fxml";
-                title = "Profile";
-            } else if (event.getSource() == settings_btn) {
-                fxmlFile = "/com/example/flowermanagementsystem/settings.fxml";
-                title = "Settings";
+                viewName = "catalog";
             }
 
-            if (fxmlFile != null) {
-                javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource(fxmlFile));
-                javafx.scene.Parent root = loader.load();
-                javafx.stage.Stage stage = (javafx.stage.Stage) main_form.getScene().getWindow();
-                javafx.scene.Scene scene = new javafx.scene.Scene(root);
-                stage.setTitle(title);
-                stage.setScene(scene);
-                stage.show();
+            if (viewName != null) {
+                loadView(viewName, event);
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            showAlert("Navigation Error", "Failed to navigate to the selected page: " + e.getMessage());
+            LOGGER.log(Level.SEVERE, "Navigation error", e);
+            showErrorAlert("Navigation Error", "Failed to navigate to the selected page: " + e.getMessage());
         }
     }
 
-    /**
-     * Handles the logout functionality.
-     */
     @FXML
     public void logout() {
-        try {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Confirmation Message");
-            alert.setHeaderText(null);
-            alert.setContentText("Are you sure you want to logout?");
-
-            if (alert.showAndWait().get() == ButtonType.OK) {
-                javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/com/example/flowermanagementsystem/FlowerLogin.fxml"));
-                javafx.scene.Parent root = loader.load();
-                javafx.stage.Stage stage = (javafx.stage.Stage) main_form.getScene().getWindow();
-                javafx.scene.Scene scene = new javafx.scene.Scene(root);
-                stage.setTitle("Flower Ordering System - Login");
-                stage.setScene(scene);
-                stage.show();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            showAlert("Logout Error", "Failed to logout: " + e.getMessage());
-        }
+        logout(main_form);
     }
 
-    // Method to load orders from database
     public void loadOrders() {
         orderList.clear();
 
         try {
-            Connection connect = DatabaseConnector.connectDB();
-            String query = "SELECT * FROM orders";
-            PreparedStatement prepare = connect.prepareStatement(query);
-            ResultSet result = prepare.executeQuery();
+            List<OrderData> orders = orderService.loadOrders();
 
-            while (result.next()) {
-                String receiptId = result.getString("order_id");
-                String user = result.getString("customer_id");
-                int numberOfItems = result.getInt("item_count");
-                double amount = result.getDouble("total_amount");
-                String status = result.getString("status");
-                String dateOrdered = result.getString("order_date");
-                String pickupDate = "Not scheduled"; // Default value since pickup_date is not in the database
+            orderList.addAll(orders);
 
-                OrderData order = new OrderData(receiptId, user, numberOfItems, amount, status, dateOrdered, pickupDate);
-                orderList.add(order);
-            }
-
-            // Close resources
-            result.close();
-            prepare.close();
-            connect.close();
-
-            // Apply search filter if there's text in the search field
             if (searchField.getText() != null && !searchField.getText().isEmpty()) {
                 filterOrders(searchField.getText());
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            showAlert("Error", "Failed to load orders from database: " + e.getMessage());
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Failed to load orders", e);
+            showErrorAlert("Error", "Failed to load orders from database: " + e.getMessage());
         }
     }
 
+    @Override
+    protected void clearInputFields() {
+        if (searchField != null) {
+            searchField.clear();
+        }
+    }
 }
