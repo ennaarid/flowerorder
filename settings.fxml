@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.flowermanagementsystem.userCatalogController">
+<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/23.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.flowermanagementsystem.customerCatalogController">
    <children>
       <AnchorPane fx:id="main_form" prefHeight="200.0" prefWidth="200.0">
          <children>
@@ -143,8 +143,8 @@
                                                             <Font name="Montserrat Medium" size="14.0" />
                                                          </font>
                                                       </Label>
-                                                      <CheckBox fx:id="email_notifications_checkbox" layoutX="150.0" layoutY="12.0" mnemonicParsing="false" text="Email Notifications" AnchorPane.leftAnchor="150.0" />
-                                                      <CheckBox fx:id="sms_notifications_checkbox" layoutX="300.0" layoutY="12.0" mnemonicParsing="false" text="SMS Notifications" AnchorPane.leftAnchor="300.0" />
+                                                      <CheckBox fx:id="email_notifications_checkbox" layoutX="171.0" layoutY="13.0" mnemonicParsing="false" text="Email Notifications" AnchorPane.leftAnchor="171.0" />
+                                                      <CheckBox fx:id="sms_notifications_checkbox" layoutX="321.0" layoutY="13.0" mnemonicParsing="false" text="SMS Notifications" AnchorPane.leftAnchor="321.0" />
                                                    </children>
                                                 </AnchorPane>
                                                 <AnchorPane prefHeight="40.0" prefWidth="932.0">
