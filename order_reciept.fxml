@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="600.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.flowermanagementsystem.OrderReceiptController">
+<AnchorPane prefHeight="600.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.flowermanagementsystem.OrderReceiptController">
     <children>
         <VBox layoutX="14.0" layoutY="14.0" prefHeight="572.0" prefWidth="572.0" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="14.0">
             <children>
@@ -44,7 +44,7 @@
                     </padding>
                 </Label>
 
-                <Label text="Shipping Information" style="-fx-font-weight: bold;">
+                <Label text="Delivery Information" style="-fx-font-weight: bold;">
                     <font>
                         <Font size="16.0" />
                     </font>
@@ -52,7 +52,7 @@
                         <Insets top="10.0" bottom="5.0" />
                     </padding>
                 </Label>
-                <Label fx:id="shippingInfoLabel" text="Shipping To: " wrapText="true">
+                <Label fx:id="shippingInfoLabel" text="Delivery Details: " wrapText="true">
                     <padding>
                         <Insets bottom="10.0" />
                     </padding>
