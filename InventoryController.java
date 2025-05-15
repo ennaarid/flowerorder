@@ -28,8 +28,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class InventoryController implements Initializable {
+public class InventoryController extends BaseController implements Initializable {
+
+    private static final Logger LOGGER = Logger.getLogger(InventoryController.class.getName());
+    private InventoryService inventoryService;
 
     @FXML
     private AnchorPane main_form;
@@ -49,11 +54,12 @@ public class InventoryController implements Initializable {
     @FXML
     private Button manageorders_btn;
 
-    @FXML
-    private Button profile_btn;
+    // Profile and Settings buttons removed from admin interface
+    // @FXML
+    // private Button profile_btn;
 
-    @FXML
-    private Button settings_btn;
+    // @FXML
+    // private Button settings_btn;
 
     @FXML
     private Button logout_btn;
@@ -74,7 +80,10 @@ public class InventoryController implements Initializable {
     private TableColumn<InventoryData, Double> inventory_col_price;
 
     @FXML
-    private TableColumn<InventoryData, String> inventory_col_status;
+    private TableColumn<InventoryData, String> inventory_col_statusText;
+
+    @FXML
+    private TableColumn<InventoryData, Integer> inventory_col_stock;
 
     @FXML
     private TableColumn<InventoryData, String> inventory_col_date;
@@ -127,51 +136,51 @@ public class InventoryController implements Initializable {
     @FXML
     private TextField inventory_image;
 
-    // Profile Form Components
-    @FXML
+    // Profile and Settings Form Components removed from admin interface
+    // @FXML
     private AnchorPane profile_form;
 
-    @FXML
+    // @FXML
     private ImageView profile_image;
 
-    @FXML
+    // @FXML
     private TextField profile_username;
 
-    @FXML
+    // @FXML
     private TextField profile_email;
 
-    @FXML
+    // @FXML
     private TextField profile_phone;
 
-    @FXML
+    // @FXML
     private Button profile_importBtn;
 
-    @FXML
+    // @FXML
     private Button profile_saveBtn;
 
-    // Settings Form Components
-    @FXML
+    // Settings Form Components removed from admin interface
+    // @FXML
     private AnchorPane settings_form;
 
-    @FXML
+    // @FXML
     private TextField settings_currentPassword;
 
-    @FXML
+    // @FXML
     private TextField settings_newPassword;
 
-    @FXML
+    // @FXML
     private TextField settings_confirmPassword;
 
-    @FXML
+    // @FXML
     private CheckBox settings_emailNotifications;
 
-    @FXML
+    // @FXML
     private CheckBox settings_orderUpdates;
 
-    @FXML
+    // @FXML
     private CheckBox settings_promotions;
 
-    @FXML
+    // @FXML
     private Button settings_saveBtn;
 
     @FXML
@@ -189,23 +198,30 @@ public class InventoryController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        // Initialize the inventory service
+        inventoryService = InventoryServiceImpl.getInstance();
+
         inventory_form.setVisible(true);
-        profile_form.setVisible(false);
-        settings_form.setVisible(false);
+
+        // Check if profile_form and settings_form are not null before setting visibility
+        if (profile_form != null) {
+            profile_form.setVisible(false);
+        }
+
+        if (settings_form != null) {
+            settings_form.setVisible(false);
+        }
 
         inventory_season.setItems(FXCollections.observableArrayList(
             "Wet", "Dry", "All Year Round"
         ));
 
-        inventory_status.setItems(FXCollections.observableArrayList(
-            "Available", "Low Stock", "Out of Stock"
-        ));
 
         inventory_col_productID.setCellValueFactory(new PropertyValueFactory<>("productID"));
         inventory_col_productName.setCellValueFactory(new PropertyValueFactory<>("productName"));
         inventory_col_season.setCellValueFactory(new PropertyValueFactory<>("season"));
         inventory_col_price.setCellValueFactory(new PropertyValueFactory<>("price"));
-        inventory_col_status.setCellValueFactory(new PropertyValueFactory<>("status"));
+        inventory_col_stock.setCellValueFactory(new PropertyValueFactory<>("stock"));
         inventory_col_date.setCellValueFactory(new PropertyValueFactory<>("date"));
         inventory_col_description.setCellValueFactory(new PropertyValueFactory<>("description"));
 
@@ -230,7 +246,8 @@ public class InventoryController implements Initializable {
         inventory_tableView.setItems(sortedData);
 
         loadInventoryData();
-        loadProfileData();
+        // Profile data loading removed from admin interface
+        // loadProfileData();
     }
 
     @FXML
@@ -266,7 +283,7 @@ public class InventoryController implements Initializable {
                 inventory_productName.getText(),
                 inventory_season.getValue(),
                 Double.parseDouble(inventory_price.getText()),
-                inventory_status.getValue(),
+                null, // Status is no longer used
                 Integer.parseInt(inventory_stock.getText()),
                 java.time.LocalDate.now().toString(),
                 inventory_description.getText(),
@@ -281,16 +298,13 @@ public class InventoryController implements Initializable {
     private void inventoryUpdateBtn() {
         InventoryData selectedItem = inventory_tableView.getSelectionModel().getSelectedItem();
         if (selectedItem != null && validateInput()) {
-            // Update the image path field with the current image path
             if (currentImagePath != null) {
                 inventory_image.setText(currentImagePath);
                 selectedItem.setImagePath(currentImagePath);
             }
 
-            // Update the database
             updateInventory();
 
-            // Update the in-memory object
             selectedItem.setProductName(inventory_productName.getText());
             selectedItem.setSeason(inventory_season.getValue());
             selectedItem.setPrice(Double.parseDouble(inventory_price.getText()));
@@ -301,30 +315,35 @@ public class InventoryController implements Initializable {
             inventory_tableView.refresh();
             clearFields();
         } else {
-            showAlert("Error", "Please select a product to update!", Alert.AlertType.ERROR);
+            showErrorAlert("Error", "Please select a product to update!");
         }
     }
 
     private void updateInventory() {
         try {
-            String sql = "UPDATE flowers SET product_name=?, season=?, price=?, stock=?, image=?, description=?, status=? WHERE product_id=?";
-            connect = DatabaseConnector.connectDB();
-            prepare = connect.prepareStatement(sql);
-            prepare.setString(1, inventory_productName.getText());
-            prepare.setString(2, inventory_season.getValue());
-            prepare.setDouble(3, Double.parseDouble(inventory_price.getText()));
-            prepare.setInt(4, Integer.parseInt(inventory_stock.getText()));
-            prepare.setString(5, currentImagePath != null ? currentImagePath : inventory_image.getText());
-            prepare.setString(6, inventory_description.getText());
-            prepare.setString(7, inventory_status.getValue());
-            prepare.setString(8, inventory_productID.getText());
+            String productId = inventory_productID.getText();
+            String productName = inventory_productName.getText();
+            String season = inventory_season.getValue();
+            double price = Double.parseDouble(inventory_price.getText());
+            int stock = Integer.parseInt(inventory_stock.getText());
+            String imagePath = currentImagePath != null ? currentImagePath : inventory_image.getText();
+            String description = inventory_description.getText();
 
-            prepare.executeUpdate();
-            showAlert("Success", "Product updated successfully!", Alert.AlertType.INFORMATION);
-            displayInventory();
+            boolean success = inventoryService.updateInventory(
+                productId, productName, season, price, stock, imagePath, description);
+
+            if (success) {
+                showInfoAlert("Success", "Product updated successfully!");
+                loadInventoryData(); // Refresh the inventory display
+            } else {
+                showErrorAlert("Error", "Failed to update product. Please check your input.");
+            }
+        } catch (NumberFormatException e) {
+            LOGGER.log(Level.SEVERE, "Invalid number format in input fields", e);
+            showErrorAlert("Input Error", "Please enter valid numbers for price and stock.");
         } catch (Exception e) {
-            e.printStackTrace();
-            showAlert("Error", "Failed to update product. Please check your input.", Alert.AlertType.ERROR);
+            LOGGER.log(Level.SEVERE, "Error updating inventory item", e);
+            showErrorAlert("Error", "Failed to update product: " + e.getMessage());
         }
     }
 
@@ -353,23 +372,23 @@ public class InventoryController implements Initializable {
                 clearFields();
             }
         } else {
-            showAlert("Error", "Please select a product to delete!", Alert.AlertType.ERROR);
+            showErrorAlert("Error", "Please select a product to delete!");
         }
     }
 
     private void deleteInventory(String productId) {
         try {
-            String sql = "DELETE FROM flowers WHERE product_id = ?";
-            connect = DatabaseConnector.connectDB();
-            prepare = connect.prepareStatement(sql);
-            prepare.setString(1, productId);
+            boolean success = inventoryService.deleteInventory(productId);
 
-            prepare.executeUpdate();
-            showAlert("Success", "Product deleted successfully!", Alert.AlertType.INFORMATION);
-            displayInventory();
+            if (success) {
+                showInfoAlert("Success", "Product deleted successfully!");
+                loadInventoryData(); // Refresh the inventory display
+            } else {
+                showErrorAlert("Error", "Failed to delete product. The product may not exist.");
+            }
         } catch (Exception e) {
-            e.printStackTrace();
-            showAlert("Error", "Failed to delete product from database.", Alert.AlertType.ERROR);
+            LOGGER.log(Level.SEVERE, "Error deleting inventory item", e);
+            showErrorAlert("Error", "Failed to delete product: " + e.getMessage());
         }
     }
 
@@ -392,7 +411,7 @@ public class InventoryController implements Initializable {
             inventory_price.getText().isEmpty() ||
             inventory_status.getValue() == null ||
             inventory_stock.getText().isEmpty()) {
-            showAlert("Error", "Please fill in all required fields!", Alert.AlertType.ERROR);
+            showErrorAlert("Error", "Please fill in all required fields!");
             return false;
         }
 
@@ -400,139 +419,91 @@ public class InventoryController implements Initializable {
             Double.parseDouble(inventory_price.getText());
             Integer.parseInt(inventory_stock.getText());
         } catch (NumberFormatException e) {
-            showAlert("Error", "Please enter valid numbers for price and stock!", Alert.AlertType.ERROR);
+            showErrorAlert("Error", "Please enter valid numbers for price and stock!");
             return false;
         }
 
         return true;
     }
 
-    private void showAlert(String title, String content, Alert.AlertType type) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
-    }
+    // Using BaseController's showInfoAlert and showErrorAlert methods instead
 
     private void loadInventoryData() {
-        // TODO: Load data from database
-        // For now, adding some sample data
-        inventoryList.add(new InventoryData(
-            "P001",
-            "Rose",
-            "Spring",
-            25.99,
-            "Available",
-            100,
-            "2024-03-20",
-            "Beautiful red roses",
-            null
-        ));
-    }
+        try {
+            // Clear existing data
+            inventoryList.clear();
 
-    // Profile Methods
-    @FXML
-    private void profileImportBtn() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select Profile Image");
-        fileChooser.getExtensionFilters().add(
-            new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg")
-        );
+            // Use the inventory service to load data
+            List<InventoryData> items = inventoryService.loadInventoryData();
 
-        File selectedFile = fileChooser.showOpenDialog(null);
-        if (selectedFile != null) {
-            currentProfileImagePath = selectedFile.getAbsolutePath();
-            Image image = new Image(selectedFile.toURI().toString());
-            profile_image.setImage(image);
+            // Add all items to the observable list
+            inventoryList.addAll(items);
+
+            // If no data was loaded, add a sample item
+            if (inventoryList.isEmpty()) {
+                inventoryList.add(new InventoryData(
+                    "P001",
+                    "Rose",
+                    "Spring",
+                    25.99,
+                    null, // Status is no longer used
+                    100,
+                    "2024-03-20",
+                    "Beautiful red roses",
+                    null
+                ));
+                LOGGER.log(Level.WARNING, "No inventory data found, added sample item");
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Failed to load inventory data", e);
+            showInfoAlert("Database Error", "Failed to load inventory data: " + e.getMessage());
+
+            // Add sample data if database load fails
+            inventoryList.add(new InventoryData(
+                "P001",
+                "Rose",
+                "Spring",
+                25.99,
+                null, 
+                100,
+                "2024-03-20",
+                "Beautiful red roses",
+                null
+            ));
         }
-    }
-
-    @FXML
-    private void profileSaveBtn() {
-        if (validateProfileInput()) {
-            // TODO: Save profile data to database
-            showAlert("Success", "Profile updated successfully!", Alert.AlertType.INFORMATION);
-        }
-    }
-
-    private boolean validateProfileInput() {
-        if (profile_username.getText().isEmpty() ||
-            profile_email.getText().isEmpty() ||
-            profile_phone.getText().isEmpty()) {
-            showAlert("Error", "Please fill in all required fields!", Alert.AlertType.ERROR);
-            return false;
-        }
-
-        if (!isValidEmail(profile_email.getText())) {
-            showAlert("Error", "Please enter a valid email address!", Alert.AlertType.ERROR);
-            return false;
-        }
-
-        if (!isValidPhone(profile_phone.getText())) {
-            showAlert("Error", "Please enter a valid phone number!", Alert.AlertType.ERROR);
-            return false;
-        }
-
-        return true;
-    }
-
-    private boolean isValidEmail(String email) {
-        return email.matches("^[A-Za-z0-9+_.-]+@(.+)$");
-    }
-
-    private boolean isValidPhone(String phone) {
-        return phone.matches("^\\d{10,11}$");
-    }
-
-    // Settings Methods
-    @FXML
-    private void settingsSaveBtn() {
-        if (validateSettingsInput()) {
-            // TODO: Save settings to database
-            showAlert("Success", "Settings updated successfully!", Alert.AlertType.INFORMATION);
-        }
-    }
-
-    private boolean validateSettingsInput() {
-        if (!settings_newPassword.getText().equals(settings_confirmPassword.getText())) {
-            showAlert("Error", "New passwords do not match!", Alert.AlertType.ERROR);
-            return false;
-        }
-        return true;
-    }
-
-    private void loadProfileData() {
-        // TODO: Load profile data from database
-        // For now, setting placeholder data
-        profile_username.setText("Admin User");
-        profile_email.setText("admin@example.com");
-        profile_phone.setText("1234567890");
     }
 
     @FXML
     private void switchForm(ActionEvent event) {
         inventory_form.setVisible(false);
-        profile_form.setVisible(false);
-        settings_form.setVisible(false);
+
+        if (profile_form != null) {
+            profile_form.setVisible(false);
+        }
+
+        if (settings_form != null) {
+            settings_form.setVisible(false);
+        }
 
         if (event.getSource() == inventory_btn) {
             inventory_form.setVisible(true);
             loadInventoryData();
         } else if (event.getSource() == dashboard_btn) {
-            // Placeholder for Dashboard form
-            System.out.println("Switch to Dashboard form");
+            try {
+                Parent root = FXMLLoader.load(getClass().getResource("/com/example/flowermanagementsystem/admindash.fxml"));
+                Stage stage = (Stage) dashboard_btn.getScene().getWindow();
+                Scene scene = new Scene(root);
+                stage.setTitle("Dashboard");
+                stage.setScene(scene);
+                stage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+                showErrorAlert("Navigation Error", "Could not navigate to Dashboard: " + e.getMessage());
+            }
         } else if (event.getSource() == menu_btn) {
-            // Placeholder for In Season form
             System.out.println("Switch to In Season form");
         } else if (event.getSource() == manageorders_btn) {
-            // Placeholder for Manage Orders form
             System.out.println("Switch to Manage Orders form");
-        } else if (event.getSource() == profile_btn) {
-            profile_form.setVisible(true);
-            loadProfileData();
-        } else if (event.getSource() == settings_btn) {
-            settings_form.setVisible(true);
         }
     }
 
@@ -546,7 +517,7 @@ public class InventoryController implements Initializable {
             Optional<ButtonType> option = alert.showAndWait();
             if (option.isPresent() && option.get() == ButtonType.OK) {
                 logout_btn.getScene().getWindow().hide();
-                Parent root = FXMLLoader.load(getClass().getResource("FXMLDocument.fxml"));
+                Parent root = FXMLLoader.load(getClass().getResource("/com/example/flowermanagementsystem/FlowerLogin.fxml"));
                 Stage stage = new Stage();
                 Scene scene = new Scene(root);
                 stage.setTitle("Flower Ordering System");
@@ -561,32 +532,37 @@ public class InventoryController implements Initializable {
     @FXML
     private void addInventory() {
         try {
-            String sql = "INSERT INTO flowers (product_id, product_name, season, price, stock, image, description, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-            connect = DatabaseConnector.connectDB();
-            prepare = connect.prepareStatement(sql);
-            prepare.setString(1, inventory_productID.getText());
-            prepare.setString(2, inventory_productName.getText());
-            prepare.setString(3, inventory_season.getValue());
-            prepare.setDouble(4, Double.parseDouble(inventory_price.getText()));
-            prepare.setInt(5, Integer.parseInt(inventory_stock.getText()));
-            prepare.setString(6, currentImagePath != null ? currentImagePath : inventory_image.getText());
-            prepare.setString(7, inventory_description.getText());
-            prepare.setString(8, inventory_status.getValue());
+            String productId = inventory_productID.getText();
+            String productName = inventory_productName.getText();
+            String season = inventory_season.getValue();
+            double price = Double.parseDouble(inventory_price.getText());
+            int stock = Integer.parseInt(inventory_stock.getText());
+            String imagePath = currentImagePath != null ? currentImagePath : inventory_image.getText();
+            String description = inventory_description.getText();
 
-            prepare.executeUpdate();
-            showAlert("Success", "Product added successfully!", Alert.AlertType.INFORMATION);
-            clearInventoryFields();
-            displayInventory();
+            boolean success = inventoryService.addInventory(
+                productId, productName, season, price, stock, imagePath, description);
+
+            if (success) {
+                showInfoAlert("Success", "Product added successfully!");
+                clearInventoryFields();
+                loadInventoryData(); // Refresh the inventory display
+            } else {
+                showErrorAlert("Error", "Failed to add product. Please check your input.");
+            }
+        } catch (NumberFormatException e) {
+            LOGGER.log(Level.SEVERE, "Invalid number format in input fields", e);
+            showErrorAlert("Input Error", "Please enter valid numbers for price and stock.");
         } catch (Exception e) {
-            e.printStackTrace();
-            showAlert("Error", "Failed to add product. Please check your input.", Alert.AlertType.ERROR);
+            LOGGER.log(Level.SEVERE, "Error adding inventory item", e);
+            showErrorAlert("Error", "Failed to add product: " + e.getMessage());
         }
     }
 
     private void displayInventory() {
         try {
             Connection conn = getConnection();
-            String query = "SELECT * FROM flowers";
+            String query = "SELECT * FROM flower";
             PreparedStatement pst = conn.prepareStatement(query);
             ResultSet rs = pst.executeQuery();
 
@@ -596,23 +572,20 @@ public class InventoryController implements Initializable {
             int maxColumns = 3;
 
             while (rs.next()) {
-                String product_id = rs.getString("product_id");
-                String product_name = rs.getString("product_name");
+                String product_id = rs.getString("flowerId");
+                String product_name = rs.getString("name");
                 String description = rs.getString("description");
                 String season = rs.getString("season");
                 double price = rs.getDouble("price");
                 int stock = rs.getInt("stock");
                 String image = rs.getString("image");
 
-                // Load the item card FXML
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/flowermanagementsystem/itemcard.fxml"));
                 VBox itemCard = loader.load();
                 ItemCardController controller = loader.getController();
 
-                // Set the data
                 controller.setData(product_id, product_name, description, season, price, image, stock, "Update");
 
-                // Set up the action button
                 controller.getActionButton().setOnAction(e -> {
                     inventory_productID.setText(product_id);
                     inventory_productName.setText(product_name);
@@ -623,7 +596,6 @@ public class InventoryController implements Initializable {
                     inventory_image.setText(image);
                 });
 
-                // Add to grid
                 inventory_grid.add(itemCard, column, row);
                 column++;
                 if (column >= maxColumns) {
@@ -637,7 +609,7 @@ public class InventoryController implements Initializable {
             conn.close();
         } catch (SQLException | IOException e) {
             e.printStackTrace();
-            showAlert("Error", "Failed to load inventory data", Alert.AlertType.ERROR);
+            showErrorAlert("Error", "Failed to load inventory data");
         }
     }
 
@@ -668,5 +640,25 @@ public class InventoryController implements Initializable {
         inventory_price.clear();
         inventory_stock.clear();
         inventory_image.clear();
+    }
+
+    @Override
+    protected void clearInputFields() {
+        inventory_productID.clear();
+        inventory_productName.clear();
+        inventory_season.setValue(null);
+        inventory_price.clear();
+        if (inventory_status != null) {
+            inventory_status.setValue(null);
+        }
+        inventory_stock.clear();
+        inventory_description.clear();
+        inventory_image.clear();
+        if (inventory_imageView != null) {
+            inventory_imageView.setImage(null);
+        }
+        if (inventory_search != null) {
+            inventory_search.clear();
+        }
     }
 }
