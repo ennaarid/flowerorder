@@ -86,7 +86,7 @@ public class ItemCard extends VBox {
                            "-fx-background-radius: 15;");
         seasonBox.getChildren().add(seasonLabel);
 
-        // Price container
+      
         priceBox = new HBox();
         priceBox.setAlignment(Pos.CENTER_LEFT);
         Label priceLabel = new Label(String.format("₱%.2f", price));
@@ -94,7 +94,7 @@ public class ItemCard extends VBox {
         priceLabel.setStyle("-fx-text-fill: #89ac46;");
         priceBox.getChildren().add(priceLabel);
 
-        // Stock indicator (only for inventory view)
+       
         if (stock >= 0) {
             HBox stockBox = new HBox(5);
             stockBox.setAlignment(Pos.CENTER_LEFT);
@@ -102,23 +102,21 @@ public class ItemCard extends VBox {
             Label stockLabel = new Label("Stock: " + stock);
             stockLabel.setFont(Font.font("Montserrat", 12));
 
-            // Color-coded stock status
+          
             String stockColor;
             if (stock > 20) {
-                stockColor = "#4caf50"; // Green for good stock
+                stockColor = "#4caf50"; 
             } else if (stock > 5) {
-                stockColor = "#ff9800"; // Orange for low stock
+                stockColor = "#ff9800";
             } else {
-                stockColor = "#f44336"; // Red for very low stock
+                stockColor = "#f44336"; 
             }
             stockLabel.setStyle("-fx-text-fill: " + stockColor + ";");
 
             stockBox.getChildren().add(stockLabel);
             detailsBox.getChildren().add(stockBox);
         }
-
-        // Action Button with modern styling
-        actionButton = new Button(buttonText);
+          actionButton = new Button(buttonText);
         actionButton.setStyle("-fx-background-color: #89ac46; " +
                             "-fx-text-fill: white; " +
                             "-fx-font-family: 'Montserrat'; " +
@@ -128,8 +126,6 @@ public class ItemCard extends VBox {
                             "-fx-background-radius: 25; " +
                             "-fx-cursor: hand;");
         actionButton.setMaxWidth(Double.MAX_VALUE);
-
-        // Hover effect for button
         actionButton.setOnMouseEntered(e -> 
             actionButton.setStyle("-fx-background-color: #7d9b3f; " +
                                 "-fx-text-fill: white; " +
@@ -151,10 +147,8 @@ public class ItemCard extends VBox {
                                 "-fx-cursor: hand;")
         );
 
-        // Add all components to details box
         detailsBox.getChildren().addAll(nameLabel, seasonBox, priceBox);
-
-        // Add all components to main container
+    
         getChildren().addAll(imageContainer, detailsBox, actionButton);
     }
 
