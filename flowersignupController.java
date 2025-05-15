@@ -75,7 +75,7 @@ public class flowersignupController {
 
     @FXML
     public void handleSignupButtonAction() {
-        String username = usernameTextField.getText(); 
+        String username = usernameTextField.getText();
         String password = passwordField.getText();
         String confirmPassword = confirmPasswordField.getText();
         String email = emailTextField.getText();
