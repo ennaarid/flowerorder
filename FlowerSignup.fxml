@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<SplitPane dividerPositions="0.4281437125748503" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" orientation="VERTICAL" prefHeight="670.0" prefWidth="546.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.flowermanagementsystem.flowersignupController">
+<SplitPane dividerPositions="0.4281437125748503" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" orientation="VERTICAL" prefHeight="670.0" prefWidth="546.0" xmlns="http://javafx.com/javafx/23.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.flowermanagementsystem.flowersignupController">
    <items>
       <AnchorPane fx:id="topPane" minHeight="0.0" minWidth="0.0" prefHeight="243.0" prefWidth="544.0" style="-fx-background-color: #E195ab;">
          <children>
@@ -61,7 +61,7 @@
                   <Font name="Montserrat Regular" size="8.0" />
                </font>
             </Label>
-               <Button fx:id="loginSwitch" layoutX="307.0" layoutY="334.0" mnemonicParsing="false" onAction="#handleLoginButtonAction" prefHeight="20.0" prefWidth="54.0" styleClass="loginbtn" stylesheets="@signupDesign.css" text="Log In">
+            <Button fx:id="loginSwitch" layoutX="307.0" layoutY="334.0" mnemonicParsing="false" onAction="#handleLoginButtonAction" prefHeight="20.0" prefWidth="54.0" styleClass="loginbtn" stylesheets="@signupDesign.css" text="Log In">
                <font>
                   <Font size="9.0" />
                </font>
