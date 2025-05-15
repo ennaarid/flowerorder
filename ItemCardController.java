@@ -15,12 +15,11 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ItemCardController {
-    // Static cart to store items (temporary solution)
-    private static List<CartItem> cartItems = new ArrayList<>();
+    // Cart service for managing cart operations
+    private CartService cartService = CartServiceImpl.getInstance();
 
     @FXML
     private VBox itemCard;
@@ -70,39 +69,14 @@ public class ItemCardController {
     private int stock;
     private int quantity = 1;
 
-    // Simple class to represent a cart item
-    public static class CartItem {
-        private String productId;
-        private String productName;
-        private double price;
-        private int quantity;
-        private String imagePath;
-
-        public CartItem(String productId, String productName, double price, int quantity, String imagePath) {
-            this.productId = productId;
-            this.productName = productName;
-            this.price = price;
-            this.quantity = quantity;
-            this.imagePath = imagePath;
-        }
-
-        // Getters
-        public String getProductId() { return productId; }
-        public String getProductName() { return productName; }
-        public double getPrice() { return price; }
-        public int getQuantity() { return quantity; }
-        public String getImagePath() { return imagePath; }
-        public double getTotal() { return price * quantity; }
-    }
-
     // Static method to get cart items
     public static List<CartItem> getCartItems() {
-        return cartItems;
+        return CartServiceImpl.getInstance().getCartItems();
     }
 
     // Static method to clear cart
     public static void clearCart() {
-        cartItems.clear();
+        CartServiceImpl.getInstance().clearCart();
     }
 
     public void setData(String productId, String productName, String description, String season, double price, String imagePath, int stock, String buttonText) {
@@ -113,6 +87,7 @@ public class ItemCardController {
         this.price = price;
         this.imagePath = imagePath;
         this.stock = stock;
+        this.quantity = 1; // Reset quantity to 1 when setting new data
 
         // Set the data to the UI components
         item_name.setText(productName);
@@ -125,12 +100,20 @@ public class ItemCardController {
         item_price.setText(String.format("₱%.2f", price));
         action_button.setText(buttonText);
 
-        // Load the image
+       
+        updateQuantityLabel();
+
+        
         try {
-            Image image = new Image(getClass().getResourceAsStream("/com/example/flowermanagementsystem/flowers/" + imagePath));
+            
+            String filename = imagePath;
+            if (imagePath != null && imagePath.contains("\\")) {
+                filename = imagePath.substring(imagePath.lastIndexOf("\\") + 1);
+            }
+
+            Image image = new Image(getClass().getResourceAsStream("/com/example/flowermanagementsystem/flowers/" + filename));
             item_image.setImage(image);
         } catch (Exception e) {
-            // Load default image if the specified image is not found
             try {
                 Image defaultImage = new Image(getClass().getResourceAsStream("/com/example/flowermanagementsystem/flowers/rose.jpg"));
                 item_image.setImage(defaultImage);
@@ -139,19 +122,18 @@ public class ItemCardController {
             }
         }
 
-        // Show stock if it's an inventory view and stock_container exists
+        
         if (stock >= 0 && stock_container != null && item_stock != null) {
             stock_container.setVisible(true);
             item_stock.setText("Stock: " + stock);
 
-            // Set stock color based on quantity
             String stockColor;
             if (stock > 20) {
-                stockColor = "#4caf50"; // Green for good stock
+                stockColor = "#4caf50";
             } else if (stock > 5) {
-                stockColor = "#ff9800"; // Orange for low stock
+                stockColor = "#ff9800"; 
             } else {
-                stockColor = "#f44336"; // Red for very low stock
+                stockColor = "#f44336"; 
             }
             item_stock.setStyle("-fx-text-fill: " + stockColor + ";");
         } else if (stock_container != null) {
@@ -167,6 +149,7 @@ public class ItemCardController {
     public double getPrice() { return price; }
     public String getImagePath() { return imagePath; }
     public int getStock() { return stock; }
+    public int getQuantity() { return quantity; }
     public Button getActionButton() { return action_button; }
     public ImageView getImageView() { return item_image; }
 
@@ -180,7 +163,7 @@ public class ItemCardController {
     public void setStock(int stock) { this.stock = stock; }
     public void setActionButtonText(String text) { this.action_button.setText(text); }
 
-    // Event handlers for quantity selector
+
     @FXML
     public void decreaseQuantity() {
         if (quantity > 1) {
@@ -191,7 +174,8 @@ public class ItemCardController {
 
     @FXML
     public void increaseQuantity() {
-        if (stock > 0 && quantity < stock) {
+    
+        if (stock == -1 || (stock > 0 && quantity < stock)) {
             quantity++;
             updateQuantityLabel();
         }
@@ -202,22 +186,16 @@ public class ItemCardController {
             quantity_label.setText(String.valueOf(quantity));
         }
     }
-
-    // Event handlers for buttons
     @FXML
     public void handleAddToCart() {
         try {
-            // Create a cart item
-            CartItem item = new CartItem(
+            cartService.addToCart(
                 productId,
                 productName,
                 price,
                 quantity,
                 imagePath
             );
-
-            // Add to cart
-            cartItems.add(item);
 
             showAlert("Success", quantity + " " + productName + " added to cart!", AlertType.INFORMATION);
         } catch (Exception e) {
@@ -243,7 +221,7 @@ public class ItemCardController {
                 stage.setTitle("Checkout");
                 stage.show();
             } catch (IOException e) {
-                // If checkout.fxml doesn't exist, try to load cart.fxml as fallback
+        
                 try {
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/flowermanagementsystem/cart.fxml"));
                     Parent root = loader.load();
@@ -253,8 +231,8 @@ public class ItemCardController {
                     stage.setTitle("Shopping Cart");
                     stage.show();
                 } catch (IOException ex) {
-                    // If both fail, show a message
-                    showAlert("Cart", "Items added to cart: " + cartItems.size() + 
+                    
+                    showAlert("Cart", "Items added to cart: " + cartService.getCartItems().size() + 
                               "\nTotal: ₱" + String.format("%.2f", calculateTotal()), AlertType.INFORMATION);
                 }
             }
@@ -265,11 +243,7 @@ public class ItemCardController {
     }
 
     private double calculateTotal() {
-        double total = 0;
-        for (CartItem item : cartItems) {
-            total += item.getTotal();
-        }
-        return total;
+        return cartService.getCartTotal();
     }
 
     private void showAlert(String title, String content, AlertType type) {
