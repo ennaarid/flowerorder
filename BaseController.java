@@ -21,12 +21,10 @@ public abstract class BaseController {
 
     protected void loadView(String viewName, ActionEvent event) {
         try {
-            // Try to load with full path first, then fall back to relative path if not found
             Parent root;
             try {
                 root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/com/example/flowermanagementsystem/" + viewName + ".fxml")));
             } catch (Exception e) {
-                // Fall back to relative path
                 root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource(viewName + ".fxml")));
             }
             Scene scene = new Scene(root);
@@ -41,12 +39,10 @@ public abstract class BaseController {
 
     protected void loadView(String viewName, Node node) {
         try {
-            // Try to load with full path first, then fall back to relative path if not found
             Parent root;
             try {
                 root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/com/example/flowermanagementsystem/" + viewName + ".fxml")));
             } catch (Exception e) {
-                // Fall back to relative path
                 root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource(viewName + ".fxml")));
             }
             Scene scene = new Scene(root);
@@ -59,11 +55,6 @@ public abstract class BaseController {
         }
     }
 
-    /**
-     * Switch to admin view if the current user has admin privileges
-     * @param node The node from which to get the scene
-     * @return true if switch was successful, false otherwise
-     */
     protected boolean switchToAdminView(Node node) {
         User currentUser = SessionManager.getCurrentUser();
         if (currentUser != null && "Administrator".equals(currentUser.getRole())) {
@@ -75,18 +66,10 @@ public abstract class BaseController {
         }
     }
 
-    /**
-     * Switch to customer view
-     * @param node The node from which to get the scene
-     */
     protected void switchToCustomerView(Node node) {
         loadView("customerCatalog", node);
     }
 
-    /**
-     * Logout the current user and return to login screen
-     * @param node The node from which to get the scene
-     */
     protected void logout(Node node) {
         try {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -95,10 +78,8 @@ public abstract class BaseController {
             alert.setContentText("Are you sure you want to logout?");
             Optional<ButtonType> option = alert.showAndWait();
             if (option.isPresent() && option.get() == ButtonType.OK) {
-                // Clear the session
                 SessionManager.clearSession();
 
-                // Load the login view
                 Parent root = FXMLLoader.load(getClass().getResource("/com/example/flowermanagementsystem/FlowerLogin.fxml"));
                 Stage stage = (Stage) node.getScene().getWindow();
                 Scene scene = new Scene(root);
